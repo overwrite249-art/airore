@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Ore API - The Bootleg AirForce</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            75% { transform: translateX(5px) rotate(2deg); }
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes mineHit {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+        .shake { animation: shake 0.3s ease-in-out; }
+        .mine-hit { animation: mineHit 0.1s ease-out; }
+        .ore-particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 24px;
+            animation: sparkle 0.6s ease-out forwards;
+        }
+        .pixel-font { font-family: 'Press Start 2P', cursive; }
+        .code-container {
+            position: relative;
+            background: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .code-container pre {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            padding-right: 3rem;
+        }
+        .copy-btn-floating {
+            position: sticky;
+            top: 8px;
+            float: right;
+            margin-right: 8px;
+            z-index: 10;
+        }
+        .chat-message {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .ore-counter {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+        }
+        .pickaxe-cursor { cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><text y="20" font-size="20">⛏️</text></svg>') 16 16, pointer; }
+        .model-card:hover { transform: translateY(-5px) scale(1.02); }
+        .rainbow-border {
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+            background-size: 400% 400%;
+            animation: rainbow 3s ease infinite;
+        }
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 py-6 border-b-4 border-yellow-500">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-5xl floating">⛏️</span>
+                    <div>
+                        <h1 class="pixel-font text-2xl md:text-3xl text-yellow-400">AIR ORE</h1>
+                        <p class="text-gray-400 text-sm mt-1">A totally legitimate AirForce API clone™</p>
+                        <p class="text-xs text-pink-400 italic">"We have AirForce at home"</p>
+                    </div>
+                </div>
+                <div class="ore-counter px-4 py-2 rounded-lg pixel-font text-black flex items-center gap-2">
+                    <span class="text-2xl">💎</span>
+                    <span id="totalOre">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Joke Banner -->
+    <div class="bg-gradient-to-r from-red-600 to-orange-600 py-2 overflow-hidden">
+        <div class="marquee whitespace-nowrap">
+            <span class="inline-block px-4">🚨 BREAKING: This API runs on hopes, dreams, and stolen tokens 🚨</span>
+            <span class="inline-block px-4">💀 99.9% uptime* (*when the developer remembers to pay for ngrok) 💀</span>
+            <span class="inline-block px-4">🎮 Claude Opus 4.5 stopped playing Unstable SMP to answer your questions 🎮</span>
+            <span class="inline-block px-4">⚠️ GPT-5.2 may or may not exist, we just believe really hard ⚠️</span>
+            <span class="inline-block px-4">🔥 Powered by browser automation and prayer 🔥</span>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Model Selection -->
+        <section class="mb-8">
+            <h2 class="pixel-font text-xl text-center mb-6 text-yellow-400">⚔️ CHOOSE YOUR FIGHTER ⚔️</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Claude -->
+                <div class="model-card bg-gradient-to-br from-orange-600 to-red-700 p-1 rounded-xl transition-all duration-300 cursor-pointer" onclick="selectModel('claude')">
+                    <div class="bg-gray-800 rounded-lg p-6 h-full">
+                        <div class="text-4xl mb-3">🤖</div>
+                        <h3 class="pixel-font text-lg text-orange-400 mb-2">Claude Opus 4.5</h3>
+                        <p class="text-sm text-gray-400 mb-2">openrouter:anthropic/claude-opus-4.5</p>
+                        <div class="bg-red-900/50 rounded p-2 text-xs text-red-300 mt-3">
+                            <span class="text-red-500">●</span> stopped playing Unstable SMP
+                        </div>
+                        <div class="mt-3 text-xs text-gray-500 italic">"I could be building a base rn but nooo"</div>
+                    </div>
+                </div>
+                <!-- GPT -->
+                <div class="model-card bg-gradient-to-br from-green-600 to-teal-700 p-1 rounded-xl transition-all duration-300 cursor-pointer" onclick="selectModel('gpt')">
+                    <div class="bg-gray-800 rounded-lg p-6 h-full">
+                        <div class="text-4xl mb-3">🧠</div>
+                        <h3 class="pixel-font text-lg text-green-400 mb-2">GPT 5.2</h3>
+                        <p class="text-sm text-gray-400 mb-2">openrouter:openai/gpt-5.2</p>
+                        <div class="bg-green-900/50 rounded p-2 text-xs text-green-300 mt-3">
+                            🌟 Definitely real and not made up
+                        </div>
+                        <div class="mt-3 text-xs text-gray-500 italic">"Trust me bro I'm from the future"</div>
+                    </div>
+                </div>
+                <!-- Gemini -->
+                <div class="model-card bg-gradient-to-br from-blue-600 to-purple-700 p-1 rounded-xl transition-all duration-300 cursor-pointer" onclick="selectModel('gemini')">
+                    <div class="bg-gray-800 rounded-lg p-6 h-full">
+                        <div class="text-4xl mb-3">💫</div>
+                        <h3 class="pixel-font text-lg text-blue-400 mb-2">Gemini 3 Pro</h3>
+                        <p class="text-sm text-gray-400 mb-2">openrouter:google/gemini-3-pro-preview</p>
+                        <div class="bg-blue-900/50 rounded p-2 text-xs text-blue-300 mt-3">
+                            ✨ Google's finest preview preview
+                        </div>
+                        <div class="mt-3 text-xs text-gray-500 italic">"Bard? Never heard of her"</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mining Area -->
+        <section id="miningArea" class="hidden mb-8">
+            <div class="rainbow-border p-1 rounded-xl">
+                <div class="bg-gray-800 rounded-lg p-8 text-center">
+                    <h2 class="pixel-font text-xl mb-4 text-yellow-400">⛏️ MINE YOUR ORE ⛏️</h2>
+                    <p class="text-gray-400 mb-4">Click the ore to power your request! You need <span id="requiredOre" class="text-yellow-400 font-bold">0</span> more ore!</p>
+                    <div class="text-8xl mb-4 select-none pickaxe-cursor inline-block" id="oreBlock" onclick="mineOre(event)">
+                        💎
+                    </div>
+                    <div class="flex justify-center gap-4 items-center">
+                        <div class="bg-gray-700 rounded-full h-6 w-64 overflow-hidden">
+                            <div id="oreProgress" class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-200" style="width: 0%"></div>
+                        </div>
+                        <span id="oreCount" class="pixel-font text-yellow-400">0</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-4 italic">"This is what peak API design looks like"</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chat Area -->
+        <section class="grid lg:grid-cols-3 gap-6">
+            <!-- Chat Box -->
+            <div class="lg:col-span-2">
+                <div class="bg-gray-800 rounded-xl overflow-hidden border border-gray-700">
+                    <div class="bg-gradient-to-r from-purple-800 to-indigo-800 px-4 py-3 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span id="selectedModelIcon">🤖</span>
+                            <span id="selectedModelName" class="font-semibold">Select a model above</span>
+                        </div>
+                        <button onclick="clearChat()" class="text-xs bg-red-600 hover:bg-red-700 px-3 py-1 rounded transition">Clear Chat</button>
+                    </div>
+                    
+                    <!-- Messages -->
+                    <div id="chatMessages" class="h-96 overflow-y-auto p-4 space-y-4">
+                        <div class="text-center text-gray-500 py-8">
+                            <p class="text-4xl mb-3">👆</p>
+                            <p>Select a model to start chatting!</p>
+                            <p class="text-sm mt-2 text-gray-600">Warning: Models may roast you for free</p>
+                        </div>
+                    </div>
+
+                    <!-- Input -->
+                    <div class="border-t border-gray-700 p-4">
+                        <div class="flex gap-2">
+                            <textarea id="userInput" placeholder="Type your message... (or your deepest secrets, we won't judge)" 
+                                class="flex-1 bg-gray-700 rounded-lg px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 text-white placeholder-gray-400"
+                                rows="2" onkeydown="handleKeyDown(event)"></textarea>
+                            <button id="sendBtn" onclick="sendMessage()" 
+                                class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 px-6 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                                <span id="sendBtnText">Send ⛏️</span>
+                            </button>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs text-gray-500">
+                            <span>Characters: <span id="charCount">0</span>/10000</span>
+                            <span>Press Ctrl+Enter to send</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-4">
+                <!-- Stats -->
+                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                    <h3 class="pixel-font text-sm text-yellow-400 mb-3">📊 STATS</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Total Ore Mined:</span>
+                            <span id="statTotalOre" class="text-yellow-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Messages Sent:</span>
+                            <span id="statMessages" class="text-green-400">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Tokens Stolen:</span>
+                            <span class="text-red-400">∞</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Legal Issues:</span>
+                            <span class="text-orange-400">Pending 😅</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jokes Box -->
+                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                    <h3 class="pixel-font text-sm text-pink-400 mb-3">😂 DAD JOKE</h3>
+                    <p id="dadJoke" class="text-sm text-gray-300 italic">"Loading joke..."</p>
+                    <button onclick="newJoke()" class="mt-3 text-xs bg-pink-600 hover:bg-pink-700 px-3 py-1 rounded transition">New Joke</button>
+                </div>
+
+                <!-- API Status -->
+                <div class="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                    <h3 class="pixel-font text-sm text-green-400 mb-3">🔌 API STATUS</h3>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div id="statusDot" class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                        <span id="statusText" class="text-sm">Checking...</span>
+                    </div>
+                    <p class="text-xs text-gray-500">Endpoint: ngrok-free.dev</p>
+                    <p class="text-xs text-gray-600 mt-2 italic">"It works on my machine"</p>
+                </div>
+
+                <!-- Warning -->
+                <div class="bg-red-900/30 border border-red-700 rounded-xl p-4">
+                    <h3 class="pixel-font text-sm text-red-400 mb-2">⚠️ DISCLAIMER</h3>
+                    <p class="text-xs text-red-300">This is a parody project. We are not affiliated with AirForce, OpenAI, Anthropic, Google, or any responsible adult. Use at your own risk. May cause spontaneous laughter.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="pixel-font text-sm text-gray-500 mb-2">AIR ORE v0.0.1-alpha-beta-gamma-definitely-stable</p>
+            <p class="text-xs text-gray-600">Made with 💀 and questionable life choices</p>
+            <p class="text-xs text-gray-700 mt-2">"If AirForce is the Air Force, we're the guy with a paper airplane"</p>
+        </div>
+    </footer>
+
+    <script>
+        // Config
+        const API_BASE = 'https://epistolic-colette-decently.ngrok-free.dev';
+        const MAX_HISTORY_CHARS = 10000;
+        
+        const MODELS = {
+            claude: {
+                name: 'Claude Opus 4.5',
+                model: 'openrouter:anthropic/claude-opus-4.5',
+                icon: '🤖',
+                color: 'orange'
+            },
+            gpt: {
+                name: 'GPT 5.2',
+                model: 'openrouter:openai/gpt-5.2',
+                icon: '🧠',
+                color: 'green'
+            },
+            gemini: {
+                name: 'Gemini 3 Pro',
+                model: 'openrouter:google/gemini-3-pro-preview',
+                icon: '💫',
+                color: 'blue'
+            }
+        };
+
+        const DAD_JOKES = [
+            "Why don't APIs ever get lonely? Because they always have endpoints to talk to!",
+            "I told my AI to make me laugh. It returned a 418 I'm a teapot.",
+            "Why did the developer go broke? Because he used up all his cache!",
+            "What's an AI's favorite band? The Machine Learning Heads!",
+            "Why did Claude stop playing Unstable SMP? Too many creeper bugs in the code!",
+            "How does GPT-5 introduce itself? 'I'm definitely real, trust me bro'",
+            "Why is this API called Air Ore? Because the real API is 'mine'!",
+            "What do you call a fake API? An API-mposter!",
+            "Why did the token cross the road? To get invalidated on the other side!",
+            "I asked the AI for a joke but it just gave me my code back.",
+            "What's the difference between AirForce and Air Ore? About 3 lawsuits.",
+            "Why do we make you mine ore? Because 'free' isn't free enough!",
+            "My API has 99.9% uptime. The 0.1% is when I check if it's working.",
+            "Why is ngrok in the URL? Because we believe in financial irresponsibility!",
+            "What's faster, GPT or our token rotation? Neither, they're both racing to fail!"
+        ];
+
+        // State
+        let selectedModel = null;
+        let chatHistory = [];
+        let currentOre = 0;
+        let requiredOre = 0;
+        let totalOreMined = 0;
+        let messagesSent = 0;
+        let userId = 'user_' + Math.random().toString(36).substr(2, 9);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            newJoke();
+            checkAPIStatus();
+            updateCharCount();
+            
+            document.getElementById('userInput').addEventListener('input', updateCharCount);
+        });
+
+        function updateCharCount() {
+            const input = document.getElementById('userInput');
+            const count = input.value.length;
+            document.getElementById('charCount').textContent = count;
+            
+            if (count > MAX_HISTORY_CHARS) {
+                input.value = input.value.substring(0, MAX_HISTORY_CHARS);
+            }
+        }
+
+        function selectModel(modelKey) {
+            selectedModel = MODELS[modelKey];
+            
+            // Update UI
+            document.getElementById('selectedModelIcon').textContent = selectedModel.icon;
+            document.getElementById('selectedModelName').textContent = selectedModel.name;
+            document.getElementById('sendBtn').disabled = false;
+            
+            // Highlight selected card
+            document.querySelectorAll('.model-card').forEach(card => {
+                card.classList.remove('ring-4', 'ring-yellow-400');
+            });
+            event.currentTarget.classList.add('ring-4', 'ring-yellow-400');
+            
+            // Clear chat for new model
+            chatHistory = [];
+            renderChat();
+            
+            // Show mining area for next message
+            addSystemMessage(`${selectedModel.icon} ${selectedModel.name} selected! Type your message below.`);
+        }
+
+        function addSystemMessage(text) {
+            const messages = document.getElementById('chatMessages');
+            messages.innerHTML = `
+                <div class="text-center text-gray-400 py-4">
+                    <p>${text}</p>
+                </div>
+            `;
+        }
+
+        function renderChat() {
+            const container = document.getElementById('chatMessages');
+            
+            if (chatHistory.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <p class="text-4xl mb-3">${selectedModel ? selectedModel.icon : '👆'}</p>
+                        <p>${selectedModel ? 'Start chatting!' : 'Select a model to start chatting!'}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = chatHistory.map((msg, idx) => {
+                const isUser = msg.role === 'user';
+                const bgColor = isUser ? 'bg-purple-900/50' : 'bg-gray-700';
+                const align = isUser ? 'ml-auto' : 'mr-auto';
+                const icon = isUser ? '👤' : selectedModel.icon;
+                
+                // Check for code blocks
+                const content = formatMessage(msg.content);
+                
+                return `
+                    <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+                        <div class="${bgColor} rounded-xl p-4 max-w-[85%] ${align}">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span>${icon}</span>
+                                <span class="text-xs text-gray-400">${isUser ? 'You' : selectedModel.name}</span>
+                            </div>
+                            <div class="chat-message">${content}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function formatMessage(text) {
+            // Escape HTML first
+            let escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // Handle code blocks with <codestart> tags
+            escaped = escaped.replace(/&lt;codestart&gt;([\s\S]*?)&lt;\/codestart&gt;/gi, (match, code) => {
+                const uniqueId = 'code_' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="code-container my-3">
+                        <button class="copy-btn-floating bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1 rounded transition" onclick="copyCode('${uniqueId}')">
+                            📋 Copy
+                        </button>
+                        <pre id="${uniqueId}" class="text-green-400 text-sm overflow-x-auto"><code>${code.trim()}</code></pre>
+                    </div>
+                `;
+            });
+            
+            // Handle regular markdown code blocks ```
+            escaped = escaped.replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, lang, code) => {
+                const uniqueId = 'code_' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="code-container my-3">
+                        <button class="copy-btn-floating bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1 rounded transition" onclick="copyCode('${uniqueId}')">
+                            📋 Copy
+                        </button>
+                        <pre id="${uniqueId}" class="text-green-400 text-sm overflow-x-auto"><code>${code.trim()}</code></pre>
+                    </div>
+                `;
+            });
+            
+            // Inline code
+            escaped = escaped.replace(/`([^`]+)`/g, '<code class="bg-gray-800 px-1 rounded text-pink-400">$1</code>');
+            
+            return escaped;
+        }
+
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const text = codeElement.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = codeElement.parentElement.querySelector('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Copied!';
+                btn.classList.add('bg-green-600');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-600');
+                }, 2000);
+            });
+        }
+
+        function handleKeyDown(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            if (!selectedModel) {
+                alert('Please select a model first! ⛏️');
+                return;
+            }
+            
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Check if we need to mine
+            if (currentOre < requiredOre) {
+                showMiningArea();
+                return;
+            }
+            
+            // Set new required ore for next message
+            requiredOre = Math.floor(Math.random() * 26) + 5; // 5-30
+            currentOre = 0;
+            updateOreUI();
+            
+            // Add user message
+            chatHistory.push({ role: 'user', content: message });
+            input.value = '';
+            updateCharCount();
+            renderChat();
+            
+            // Show loading
+            const sendBtn = document.getElementById('sendBtn');
+            const sendBtnText = document.getElementById('sendBtnText');
+            sendBtn.disabled = true;
+            sendBtnText.textContent = 'Mining... ⛏️';
+            
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        message: message,
+                        vision_context: null
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Add assistant message
+                chatHistory.push({ role: 'assistant', content: data.response || 'Error: No response received' });
+                messagesSent++;
+                document.getElementById('statMessages').textContent = messagesSent;
+                
+                // Trim history if too long
+                trimHistory();
+                
+            } catch (error) {
+                chatHistory.push({ 
+                    role: 'assistant', 
+                    content: `❌ Error: ${error.message}\n\nThe API might be down, or the developer forgot to pay for ngrok again. Classic.` 
+                });
+            }
+            
+            renderChat();
+            sendBtn.disabled = false;
+            sendBtnText.textContent = 'Send ⛏️';
+            
+            // Show mining for next message
+            showMiningArea();
+        }
+
+        function trimHistory() {
+            let totalChars = chatHistory.reduce((sum, msg) => sum + msg.content.length, 0);
+            
+            while (totalChars > MAX_HISTORY_CHARS && chatHistory.length > 2) {
+                const removed = chatHistory.shift();
+                totalChars -= removed.content.length;
+            }
+        }
+
+        function showMiningArea() {
+            const miningArea = document.getElementById('miningArea');
+            miningArea.classList.remove('hidden');
+            document.getElementById('requiredOre').textContent = requiredOre - currentOre;
+            miningArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function mineOre(event) {
+            if (currentOre >= requiredOre) return;
+            
+            currentOre++;
+            totalOreMined++;
+            
+            // Update displays
+            document.getElementById('oreCount').textContent = currentOre;
+            document.getElementById('totalOre').textContent = totalOreMined;
+            document.getElementById('statTotalOre').textContent = totalOreMined;
+            document.getElementById('requiredOre').textContent = Math.max(0, requiredOre - currentOre);
+            
+            // Progress bar
+            const progress = (currentOre / requiredOre) * 100;
+            document.getElementById('oreProgress').style.width = `${progress}%`;
+            
+            // Animation
+            const ore = document.getElementById('oreBlock');
+            ore.classList.add('mine-hit');
+            setTimeout(() => ore.classList.remove('mine-hit'), 100);
+            
+            // Particle effect
+            createParticle(event.clientX, event.clientY);
+            
+            // Check if done
+            if (currentOre >= requiredOre) {
+                setTimeout(() => {
+                    document.getElementById('miningArea').classList.add('hidden');
+                    // Reset for next time
+                    document.getElementById('oreProgress').style.width = '0%';
+                    document.getElementById('oreCount').textContent = '0';
+                }, 500);
+            }
+        }
+
+        function createParticle(x, y) {
+            const particles = ['💎', '✨', '⭐', '💰', '🪙'];
+            const particle = document.createElement('div');
+            particle.className = 'ore-particle';
+            particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+            particle.style.left = (x + (Math.random() - 0.5) * 50) + 'px';
+            particle.style.top = (y + (Math.random() - 0.5) * 50) + 'px';
+            document.body.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 600);
+        }
+
+        function updateOreUI() {
+            document.getElementById('oreCount').textContent = currentOre;
+            document.getElementById('oreProgress').style.width = '0%';
+        }
+
+        function clearChat() {
+            chatHistory = [];
+            renderChat();
+            
+            // Also clear on server
+            fetch(`${API_BASE}/clear_history?user_id=${userId}`, {
+                method: 'POST',
+                headers: { 'ngrok-skip-browser-warning': 'true' }
+            }).catch(() => {});
+        }
+
+        function newJoke() {
+            const joke = DAD_JOKES[Math.floor(Math.random() * DAD_JOKES.length)];
+            document.getElementById('dadJoke').textContent = joke;
+        }
+
+        async function checkAPIStatus() {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            try {
+                const response = await fetch(`${API_BASE}/`, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    dot.className = 'w-3 h-3 bg-green-500 rounded-full';
+                    text.textContent = `Online (${data.tokens_available || 0} tokens)`;
+                } else {
+                    dot.className = 'w-3 h-3 bg-red-500 rounded-full animate-pulse';
+                    text.textContent = 'Error';
+                }
+            } catch (error) {
+                dot.className = 'w-3 h-3 bg-red-500 rounded-full animate-pulse';
+                text.textContent = 'Offline (RIP)';
+            }
+        }
+
+        // Check status every 30 seconds
+        setInterval(checkAPIStatus, 30000);
+    </script>
+</body>
+</html>

@@ -77,15 +77,6 @@
             to { transform: translateY(200vh) rotate(1440deg); opacity: 0; }
         }
 
-        @keyframes typewriter {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-
-        @keyframes blink {
-            50% { border-color: transparent; }
-        }
-
         @keyframes particleFloat {
             0% { transform: translateY(0) scale(1); opacity: 1; }
             100% { transform: translateY(-100px) scale(0); opacity: 0; }
@@ -235,6 +226,7 @@
         #main-app {
             display: none;
             min-height: 100vh;
+            padding-bottom: 60px;
         }
 
         #main-app.visible {
@@ -302,6 +294,14 @@
             box-shadow: 0 0 20px rgba(185, 242, 255, 0.5);
         }
 
+        .ore-counter.gems {
+            border-color: var(--neon-pink);
+        }
+
+        .ore-counter.gems:hover {
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+        }
+
         .ore-icon {
             font-size: 1.5rem;
         }
@@ -314,6 +314,10 @@
 
         .ore-counter.diamond .ore-amount {
             color: var(--diamond);
+        }
+
+        .ore-counter.gems .ore-amount {
+            color: var(--neon-pink);
         }
 
         /* Navigation */
@@ -598,6 +602,11 @@
             box-shadow: 0 20px 50px rgba(255, 0, 255, 0.2);
         }
 
+        .minigame-card.featured {
+            border-color: var(--neon-orange);
+            background: linear-gradient(135deg, rgba(255, 136, 0, 0.2), var(--bg-secondary));
+        }
+
         .minigame-icon {
             font-size: 4rem;
             margin-bottom: 15px;
@@ -616,6 +625,18 @@
 
         .minigame-diamond {
             color: var(--diamond);
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--neon-orange);
+            color: black;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
         }
 
         /* Minigame Modal */
@@ -641,11 +662,21 @@
             padding: 40px;
             border-radius: 30px;
             border: 3px solid var(--neon-blue);
-            max-width: 600px;
-            width: 90%;
+            max-width: 800px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
             text-align: center;
             position: relative;
             box-shadow: 0 0 100px rgba(0, 245, 255, 0.3);
+        }
+
+        .game-container.fullscreen {
+            max-width: 100%;
+            width: 100%;
+            height: 100%;
+            max-height: 100%;
+            border-radius: 0;
         }
 
         .game-close {
@@ -656,6 +687,7 @@
             cursor: pointer;
             color: var(--text-secondary);
             transition: all 0.3s ease;
+            z-index: 10;
         }
 
         .game-close:hover {
@@ -712,7 +744,7 @@
 
         /* AI Chat */
         .chat-container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: var(--bg-tertiary);
             border-radius: 20px;
@@ -728,11 +760,47 @@
 
         .chat-header h3 {
             color: var(--neon-pink);
+            margin-bottom: 10px;
+        }
+
+        .model-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .model-btn {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .model-btn:hover {
+            border-color: var(--neon-blue);
+            color: var(--text-primary);
+        }
+
+        .model-btn.active {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            background: rgba(255, 0, 255, 0.1);
+        }
+
+        .model-btn.custom {
+            border-color: var(--neon-orange);
+            color: var(--neon-orange);
         }
 
         .chat-cost {
             color: var(--text-secondary);
             font-size: 0.9rem;
+            margin-top: 10px;
         }
 
         .chat-messages {
@@ -747,8 +815,9 @@
         .chat-message {
             padding: 15px 20px;
             border-radius: 15px;
-            max-width: 80%;
+            max-width: 85%;
             animation: slideIn 0.3s ease-out;
+            line-height: 1.6;
         }
 
         .chat-message.user {
@@ -762,15 +831,62 @@
             align-self: flex-start;
         }
 
+        .chat-message pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Code block styling */
+        .code-block-wrapper {
+            position: relative;
+            background: #1e1e2e;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .code-block {
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-copy-btn {
+            position: fixed;
+            padding: 8px 15px;
+            background: var(--neon-green);
+            color: black;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            z-index: 1000;
+            pointer-events: auto;
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .code-copy-btn:hover {
+            transform: scale(1.1);
+        }
+
         .chat-input-area {
             padding: 20px;
             display: flex;
             gap: 10px;
             border-top: 1px solid var(--bg-secondary);
+            flex-wrap: wrap;
         }
 
         .chat-input {
             flex: 1;
+            min-width: 200px;
             padding: 15px 20px;
             background: var(--bg-secondary);
             border: 2px solid var(--bg-tertiary);
@@ -798,6 +914,61 @@
 
         .chat-send:hover {
             transform: scale(1.05);
+        }
+
+        .chat-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Custom Model Modal */
+        .custom-model-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 600;
+        }
+
+        .custom-model-modal.active {
+            display: flex;
+        }
+
+        .custom-model-content {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid var(--neon-orange);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .custom-model-input {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin: 20px 0;
+        }
+
+        .custom-model-input:focus {
+            outline: none;
+            border-color: var(--neon-orange);
+        }
+
+        .blacklist-warning {
+            color: var(--neon-pink);
+            font-size: 0.8rem;
+            margin-top: 10px;
         }
 
         /* Endgame */
@@ -1062,36 +1233,6 @@
             box-shadow: 0 0 15px var(--neon-pink);
         }
 
-        /* Rhythm Game */
-        .rhythm-lane {
-            width: 80px;
-            height: 300px;
-            background: var(--bg-tertiary);
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .rhythm-target {
-            position: absolute;
-            bottom: 20px;
-            left: 10px;
-            right: 10px;
-            height: 20px;
-            background: rgba(0, 245, 255, 0.3);
-            border-radius: 5px;
-            border: 2px solid var(--neon-blue);
-        }
-
-        .rhythm-note {
-            position: absolute;
-            left: 10px;
-            right: 10px;
-            height: 20px;
-            background: var(--neon-pink);
-            border-radius: 5px;
-        }
-
         /* Lucky Wheel */
         .wheel-container {
             position: relative;
@@ -1171,82 +1312,6 @@
             transition: left 0.05s linear;
         }
 
-        /* Gravity Jump */
-        .jump-area {
-            width: 300px;
-            height: 200px;
-            background: var(--bg-tertiary);
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .jump-player {
-            width: 40px;
-            height: 40px;
-            background: var(--neon-green);
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 10px;
-            transition: bottom 0.1s ease;
-        }
-
-        .jump-platform {
-            width: 80px;
-            height: 15px;
-            background: var(--neon-blue);
-            position: absolute;
-            border-radius: 5px;
-        }
-
-        /* Speed Click */
-        .click-target {
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, var(--neon-pink), var(--neon-blue));
-            border-radius: 50%;
-            cursor: pointer;
-            transition: transform 0.1s;
-            animation: pulse 0.5s ease-in-out infinite;
-        }
-
-        .click-target:active {
-            transform: scale(0.9);
-        }
-
-        /* Boss Click */
-        .boss-container {
-            text-align: center;
-        }
-
-        .boss-health {
-            width: 100%;
-            height: 30px;
-            background: var(--bg-tertiary);
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .boss-health-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--neon-pink), #ff0000);
-            transition: width 0.2s ease;
-        }
-
-        .boss-enemy {
-            font-size: 8rem;
-            cursor: pointer;
-            transition: transform 0.1s;
-            user-select: none;
-        }
-
-        .boss-enemy:active {
-            transform: scale(0.95);
-        }
-
         /* Infinity indicator */
         .infinity-active {
             position: fixed;
@@ -1293,6 +1358,346 @@
             transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
+
+        /* Subway Surfers style game */
+        .subway-game {
+            width: 300px;
+            height: 400px;
+            background: linear-gradient(180deg, #87CEEB 0%, #228B22 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subway-player {
+            width: 40px;
+            height: 60px;
+            background: var(--neon-blue);
+            position: absolute;
+            bottom: 50px;
+            border-radius: 10px;
+            transition: left 0.2s ease;
+        }
+
+        .subway-obstacle {
+            width: 60px;
+            height: 40px;
+            background: var(--neon-pink);
+            position: absolute;
+            border-radius: 5px;
+        }
+
+        .subway-coin {
+            width: 20px;
+            height: 20px;
+            background: gold;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .subway-lanes {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background: #333;
+            display: flex;
+        }
+
+        .subway-lane {
+            flex: 1;
+            border-right: 2px dashed #555;
+        }
+
+        /* FNF style game */
+        .fnf-game {
+            width: 400px;
+            height: 400px;
+            background: #1a1a2e;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fnf-lanes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .fnf-lane {
+            width: 60px;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .fnf-target {
+            position: absolute;
+            bottom: 20px;
+            left: 5px;
+            right: 5px;
+            height: 30px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+            border: 2px solid white;
+        }
+
+        .fnf-note {
+            position: absolute;
+            left: 5px;
+            right: 5px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .fnf-note.left { background: #ff6b6b; }
+        .fnf-note.down { background: #4ecdc4; }
+        .fnf-note.up { background: #45b7d1; }
+        .fnf-note.right { background: #96ceb4; }
+
+        .fnf-keys {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .fnf-key {
+            padding: 15px 25px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .fnf-key.active {
+            background: var(--neon-blue);
+            color: black;
+        }
+
+        /* Snake Game */
+        .snake-game {
+            width: 300px;
+            height: 300px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .snake-segment {
+            width: 15px;
+            height: 15px;
+            background: var(--neon-green);
+            position: absolute;
+            border-radius: 3px;
+        }
+
+        .snake-food {
+            width: 15px;
+            height: 15px;
+            background: var(--neon-pink);
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        /* Flappy Bird style */
+        .flappy-game {
+            width: 300px;
+            height: 400px;
+            background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flappy-bird {
+            width: 30px;
+            height: 30px;
+            background: yellow;
+            position: absolute;
+            border-radius: 50%;
+            left: 50px;
+        }
+
+        .flappy-pipe {
+            width: 50px;
+            background: green;
+            position: absolute;
+        }
+
+        /* Pong Game */
+        .pong-game {
+            width: 400px;
+            height: 300px;
+            background: #000;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .pong-paddle {
+            width: 10px;
+            height: 60px;
+            background: white;
+            position: absolute;
+        }
+
+        .pong-ball {
+            width: 15px;
+            height: 15px;
+            background: white;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        /* Breakout */
+        .breakout-game {
+            width: 400px;
+            height: 400px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .breakout-paddle {
+            width: 80px;
+            height: 15px;
+            background: var(--neon-blue);
+            position: absolute;
+            bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .breakout-ball {
+            width: 12px;
+            height: 12px;
+            background: white;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .breakout-brick {
+            width: 45px;
+            height: 20px;
+            position: absolute;
+            border-radius: 3px;
+        }
+
+        /* Typing Game */
+        .typing-word {
+            font-size: 2rem;
+            color: var(--neon-blue);
+            margin: 20px 0;
+            letter-spacing: 5px;
+        }
+
+        .typing-input {
+            font-size: 1.5rem;
+            padding: 15px 30px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            color: var(--text-primary);
+            text-align: center;
+            width: 300px;
+        }
+
+        /* Color Match */
+        .color-display {
+            font-size: 3rem;
+            font-weight: bold;
+            padding: 30px 60px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .color-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .color-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Aim Trainer */
+        .aim-game {
+            width: 400px;
+            height: 400px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        .aim-target {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle, var(--neon-pink) 30%, transparent 30%, transparent 50%, var(--neon-pink) 50%, var(--neon-pink) 70%, transparent 70%);
+            border: 3px solid var(--neon-pink);
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        /* 2048 style */
+        .game-2048 {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+        }
+
+        .tile-2048 {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            transition: all 0.1s ease;
+        }
+
+        /* Cheat notification */
+        .cheat-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 40px 60px;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue));
+            border-radius: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            z-index: 2000;
+            animation: pulse 0.5s ease-in-out infinite;
+            display: none;
+        }
+
+        .cheat-popup.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -1337,6 +1742,11 @@
                 <div class="ore-counter diamond">
                     <span class="ore-icon">💠</span>
                     <span class="ore-amount" id="diamondDisplay">0</span>
+                </div>
+                <div class="ore-counter gems">
+                    <span class="ore-icon">💎</span>
+                    <span class="ore-amount" id="gemsDisplay">0</span>
+                    <span style="font-size: 0.8rem; color: var(--neon-pink);">gems</span>
                 </div>
             </div>
         </div>
@@ -1386,12 +1796,13 @@
             </div>
             
             <div class="patch-notes">
-                <h3 class="patch-title">📋 PATCH NOTES v0.0.0.0.1 (DEFINITELY REAL)</h3>
-                <div class="patch-item">Added air. It was missing.</div>
-                <div class="patch-item">Fixed bug where ore had mass. Ore should be weightless.</div>
-                <div class="patch-item">Removed Herobrine (he was mining our ore)</div>
-                <div class="patch-item">The AI is watching. It's proud of you.</div>
-                <div class="patch-item">Added "click" functionality. Revolutionary.</div>
+                <h3 class="patch-title">📋 PATCH NOTES v0.0.0.0.2 (THE AI UPDATE)</h3>
+                <div class="patch-item">Added REAL AI chat with 3 model choices!</div>
+                <div class="patch-item">Added 10 NEW minigames including Subway Surfers & FNF clones!</div>
+                <div class="patch-item">Added gems currency for custom AI models</div>
+                <div class="patch-item">Message costs now scale: 30→60→120→300 ore</div>
+                <div class="patch-item">Added secret cheat code (we won't tell you what it is 👀)</div>
+                <div class="patch-item">AI responses now have copy buttons that follow your mouse!</div>
             </div>
         </div>
 
@@ -1403,6 +1814,20 @@
             </p>
             
             <div class="minigames-grid">
+                <div class="minigame-card featured" data-game="subway">
+                    <span class="featured-badge">⭐ FEATURED</span>
+                    <div class="minigame-icon">🏃</div>
+                    <div class="minigame-name">Air Surfers</div>
+                    <div class="minigame-reward">Reward: 50 ore/100m + coins</div>
+                </div>
+
+                <div class="minigame-card featured" data-game="fnf">
+                    <span class="featured-badge">⭐ FEATURED</span>
+                    <div class="minigame-icon">🎤</div>
+                    <div class="minigame-name">Friday Night Minin'</div>
+                    <div class="minigame-reward">Reward: 25 ore/note</div>
+                </div>
+                
                 <div class="minigame-card" data-game="reaction">
                     <div class="minigame-icon">⚡</div>
                     <div class="minigame-name">Reaction Test</div>
@@ -1416,7 +1841,7 @@
                 </div>
                 
                 <div class="minigame-card" data-game="dodge">
-                    <div class="minigame-icon">🏃</div>
+                    <div class="minigame-icon">🚗</div>
                     <div class="minigame-name">Dodge Blocks</div>
                     <div class="minigame-reward">Reward: 10 ore/sec survived</div>
                 </div>
@@ -1451,16 +1876,58 @@
                     <div class="minigame-reward minigame-diamond">💠 Up to 5 diamonds!</div>
                 </div>
                 
-                <div class="minigame-card" data-game="jump">
-                    <div class="minigame-icon">🦘</div>
-                    <div class="minigame-name">Gravity Jump</div>
-                    <div class="minigame-reward">Reward: 15 ore/platform</div>
-                </div>
-                
                 <div class="minigame-card" data-game="boss">
                     <div class="minigame-icon">👹</div>
                     <div class="minigame-name">Mini Boss</div>
                     <div class="minigame-reward minigame-diamond">💠 Guaranteed diamond!</div>
+                </div>
+
+                <div class="minigame-card" data-game="snake">
+                    <div class="minigame-icon">🐍</div>
+                    <div class="minigame-name">Air Snake</div>
+                    <div class="minigame-reward">Reward: 10 ore/food</div>
+                </div>
+
+                <div class="minigame-card" data-game="flappy">
+                    <div class="minigame-icon">🐦</div>
+                    <div class="minigame-name">Flappy Ore</div>
+                    <div class="minigame-reward">Reward: 20 ore/pipe</div>
+                </div>
+
+                <div class="minigame-card" data-game="pong">
+                    <div class="minigame-icon">🏓</div>
+                    <div class="minigame-name">Air Pong</div>
+                    <div class="minigame-reward">Reward: 30 ore/point</div>
+                </div>
+
+                <div class="minigame-card" data-game="breakout">
+                    <div class="minigame-icon">🧱</div>
+                    <div class="minigame-name">Ore Breaker</div>
+                    <div class="minigame-reward">Reward: 5 ore/brick</div>
+                </div>
+
+                <div class="minigame-card" data-game="typing">
+                    <div class="minigame-icon">⌨️</div>
+                    <div class="minigame-name">Type Rush</div>
+                    <div class="minigame-reward">Reward: 50 ore/word</div>
+                </div>
+
+                <div class="minigame-card" data-game="colorMatch">
+                    <div class="minigame-icon">🎨</div>
+                    <div class="minigame-name">Color Chaos</div>
+                    <div class="minigame-reward">Reward: 40 ore/correct</div>
+                </div>
+
+                <div class="minigame-card" data-game="aim">
+                    <div class="minigame-icon">🎯</div>
+                    <div class="minigame-name">Aim Trainer</div>
+                    <div class="minigame-reward">Reward: 15 ore/hit</div>
+                </div>
+
+                <div class="minigame-card" data-game="2048">
+                    <div class="minigame-icon">🔢</div>
+                    <div class="minigame-name">2048 Ore</div>
+                    <div class="minigame-reward minigame-diamond">💠 Diamond at 2048!</div>
                 </div>
             </div>
         </div>
@@ -1484,18 +1951,26 @@
             <div class="chat-container">
                 <div class="chat-header">
                     <h3>AirBot 3000 <span class="unlimited-badge" id="unlimitedBadge" style="display: none;">∞ UNLIMITED</span></h3>
-                    <p class="chat-cost" id="chatCost">Each message costs 30 ore (we gotta pay the cloud bills somehow)</p>
+                    
+                    <div class="model-selector">
+                        <button class="model-btn active" data-model="anthropic/claude-opus-4.5">🟣 Claude Opus 4.5</button>
+                        <button class="model-btn" data-model="openai/gpt-5.2">🟢 GPT-5.2</button>
+                        <button class="model-btn" data-model="google/gemini-3-pro-preview">🔵 Gemini 3 Pro</button>
+                        <button class="model-btn custom" id="customModelBtn">💎 Custom (1000 gems)</button>
+                    </div>
+                    
+                    <p class="chat-cost" id="chatCost">Message cost: <span id="currentCost">30</span> ore (Messages sent: <span id="messageCount">0</span>)</p>
                 </div>
                 
                 <div class="chat-messages" id="chatMessages">
                     <div class="chat-message ai">
-                        👋 Hey there, miner! I'm AirBot 3000. I'm definitely a real AI and not just random responses. Ask me anything! (30 ore per message btw)
+                        👋 Hey there, miner! I'm connected to REAL AI models now! Choose a model above and ask me anything. Each message costs ore (30→60→120→300 after every 3 messages).
                     </div>
                 </div>
                 
                 <div class="chat-input-area">
-                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask the definitely real AI...">
-                    <button class="chat-send" id="chatSend">Send (30💎)</button>
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask the AI anything...">
+                    <button class="chat-send" id="chatSend">Send (<span id="sendCost">30</span>💎)</button>
                 </div>
             </div>
         </div>
@@ -1505,27 +1980,40 @@
             <div class="ticker-content">
                 <span class="ticker-item">🚨 BREAKING: <span>Air prices hit all-time high</span></span>
                 <span class="ticker-item">📈 <span>ORE/USD:</span> $0.000001 (+∞%)</span>
-                <span class="ticker-item">⚠️ Scientists confirm: <span>Air is indeed invisible</span></span>
-                <span class="ticker-item">🎮 <span>Claude has stopped playing Unstable SMP</span> to bring you this message</span>
-                <span class="ticker-item">💡 TIP: <span>Click more = more ore</span>. Revolutionary.</span>
+                <span class="ticker-item">🤖 <span>NEW: Real AI integration!</span> Claude, GPT, Gemini available</span>
+                <span class="ticker-item">🎮 <span>20 Minigames now available!</span> Including Subway Surfers & FNF clones</span>
+                <span class="ticker-item">💡 TIP: <span>Try the secret cheat code...</span></span>
                 <span class="ticker-item">🔒 Your data is stored in <span>localStorage</span>. Very secure. Trust us.</span>
                 <span class="ticker-item">🚨 BREAKING: <span>Air prices hit all-time high</span></span>
                 <span class="ticker-item">📈 <span>ORE/USD:</span> $0.000001 (+∞%)</span>
-                <span class="ticker-item">⚠️ Scientists confirm: <span>Air is indeed invisible</span></span>
-                <span class="ticker-item">🎮 <span>Claude has stopped playing Unstable SMP</span> to bring you this message</span>
-                <span class="ticker-item">💡 TIP: <span>Click more = more ore</span>. Revolutionary.</span>
-                <span class="ticker-item">🔒 Your data is stored in <span>localStorage</span>. Very secure. Trust us.</span>
+                <span class="ticker-item">🤖 <span>NEW: Real AI integration!</span> Claude, GPT, Gemini available</span>
+                <span class="ticker-item">🎮 <span>20 Minigames now available!</span> Including Subway Surfers & FNF clones</span>
             </div>
         </div>
     </div>
 
     <!-- Game Modal -->
     <div class="game-modal" id="gameModal">
-        <div class="game-container">
+        <div class="game-container" id="gameContainer">
             <span class="game-close" id="gameClose">×</span>
             <h2 class="game-title" id="gameTitle">Game</h2>
             <div class="game-area" id="gameArea">
                 <!-- Game content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Model Modal -->
+    <div class="custom-model-modal" id="customModelModal">
+        <div class="custom-model-content">
+            <h2 style="color: var(--neon-orange); margin-bottom: 20px;">💎 Custom Model</h2>
+            <p>Cost: <strong>1000 gems</strong></p>
+            <p style="color: var(--text-secondary); margin-top: 10px;">Your gems: <span id="modalGems">0</span></p>
+            <input type="text" class="custom-model-input" id="customModelInput" placeholder="e.g., meta/llama-3.1-405b">
+            <p class="blacklist-warning">⚠️ Blacklisted models: openai/gpt-5.2-pro, openai/gpt-5-pro</p>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="game-btn" style="padding: 15px 30px; font-size: 1rem;" id="buyCustomModel">Buy & Use</button>
+                <button class="game-btn" style="padding: 15px 30px; font-size: 1rem; background: var(--bg-tertiary);" id="closeCustomModal">Cancel</button>
             </div>
         </div>
     </div>
@@ -1535,19 +2023,19 @@
         <div class="endgame-content">
             <h1 class="endgame-title">🌟 PEAK AIR ACHIEVED 🌟</h1>
             <p class="endgame-subtitle">You have mined 100,000 ore. The air bows before you.</p>
-            <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose your destiny (this is definitely permanent and not fake at all):</p>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose your destiny:</p>
             
             <div class="endgame-choices">
                 <div class="endgame-choice ai-choice" data-choice="ai">
                     <div class="choice-icon">🤖</div>
                     <div class="choice-title">Unlimited AI</div>
-                    <div class="choice-desc">Free AI chat forever. No more 30 ore messages. The AI becomes your friend (it was always your friend).</div>
+                    <div class="choice-desc">Free AI chat forever. No more ore costs.</div>
                 </div>
                 
                 <div class="endgame-choice mine-choice" data-choice="infinity">
                     <div class="choice-icon">♾️</div>
                     <div class="choice-title">Infinity Mine</div>
-                    <div class="choice-desc">Auto-generate 100 ore per second forever. Watch numbers go up. Feel the dopamine.</div>
+                    <div class="choice-desc">Auto-generate 100 ore per second forever.</div>
                 </div>
             </div>
         </div>
@@ -1559,16 +2047,44 @@
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
+    <!-- Cheat Popup -->
+    <div class="cheat-popup" id="cheatPopup">🎉 +5000 GEMS! 🎉</div>
+
     <!-- Infinity Active Indicator -->
     <div class="infinity-active" id="infinityIndicator" style="display: none;">
         ♾️ <span>+100/sec</span>
     </div>
 
+    <!-- Floating Copy Button -->
+    <button class="code-copy-btn" id="floatingCopyBtn">📋 Copy</button>
+
     <script>
+        // API Configuration
+        const API_BASE_URL = "https://epistolic-colette-decently.ngrok-free.dev";
+        
+        // Blacklisted models
+        const BLACKLISTED_MODELS = ["openai/gpt-5.2-pro", "openai/gpt-5-pro"];
+        
+        // Available models
+        const AVAILABLE_MODELS = [
+            "anthropic/claude-opus-4.5",
+            "openai/gpt-5.2",
+            "google/gemini-3-pro-preview"
+        ];
+
+        // Cost progression: [30, 30, 30, 60, 60, 60, 120, 120, 120, 300, 300, 300, ...]
+        function getMessageCost(messageCount) {
+            if (messageCount < 3) return 30;
+            if (messageCount < 6) return 60;
+            if (messageCount < 9) return 120;
+            return 300;
+        }
+
         // Game State
         let gameState = {
             ore: 0,
             diamondOre: 0,
+            gems: 0,
             totalMined: 0,
             clickPower: 1,
             autoMine: 0,
@@ -1577,12 +2093,42 @@
             hasCompletedIntro: false,
             endgameChoice: null,
             unlimitedAI: false,
-            infinityMine: false
+            infinityMine: false,
+            messageCount: 0,
+            selectedModel: "anthropic/claude-opus-4.5",
+            customModel: null,
+            userId: 'user_' + Math.random().toString(36).substr(2, 9)
         };
+
+        // Cheat code detection
+        let cheatBuffer = '';
+        const CHEAT_CODE = 'iamadirtycheater';
+
+        document.addEventListener('keypress', (e) => {
+            cheatBuffer += e.key.toLowerCase();
+            if (cheatBuffer.length > CHEAT_CODE.length) {
+                cheatBuffer = cheatBuffer.slice(-CHEAT_CODE.length);
+            }
+            if (cheatBuffer === CHEAT_CODE) {
+                activateCheat();
+                cheatBuffer = '';
+            }
+        });
+
+        function activateCheat() {
+            gameState.gems += 5000;
+            updateDisplays();
+            saveGame();
+            
+            const popup = document.getElementById('cheatPopup');
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 2000);
+            showToast('🎮 Cheat activated! +5000 gems!');
+        }
 
         // Load saved state
         function loadGame() {
-            const saved = localStorage.getItem('airOreState');
+            const saved = localStorage.getItem('airOreStateV2');
             if (saved) {
                 gameState = { ...gameState, ...JSON.parse(saved) };
             }
@@ -1590,18 +2136,31 @@
 
         // Save state
         function saveGame() {
-            localStorage.setItem('airOreState', JSON.stringify(gameState));
+            localStorage.setItem('airOreStateV2', JSON.stringify(gameState));
         }
 
         // Update displays
         function updateDisplays() {
             document.getElementById('oreDisplay').textContent = formatNumber(gameState.ore);
             document.getElementById('diamondDisplay').textContent = formatNumber(gameState.diamondOre);
+            document.getElementById('gemsDisplay').textContent = formatNumber(gameState.gems);
             document.getElementById('totalMined').textContent = formatNumber(gameState.totalMined);
             document.getElementById('clickPower').textContent = gameState.clickPower;
             document.getElementById('autoMine').textContent = gameState.autoMine;
             document.getElementById('diamondChance').textContent = gameState.diamondChance + '%';
             document.getElementById('orePerClick').textContent = gameState.clickPower;
+            
+            // Update chat costs
+            const currentCost = gameState.unlimitedAI ? 0 : getMessageCost(gameState.messageCount);
+            document.getElementById('currentCost').textContent = currentCost;
+            document.getElementById('sendCost').textContent = currentCost;
+            document.getElementById('messageCount').textContent = gameState.messageCount;
+            document.getElementById('modalGems').textContent = gameState.gems;
+            
+            if (gameState.unlimitedAI) {
+                document.getElementById('chatCost').textContent = '✨ UNLIMITED - Chat for free forever! ✨';
+                document.getElementById('chatSend').textContent = 'Send (FREE!)';
+            }
             
             // Check for endgame
             if (gameState.ore >= 100000 && !gameState.endgameChoice) {
@@ -1709,7 +2268,6 @@
                 vx *= friction;
                 rotationSpeed *= 0.99;
                 
-                // Bounce off walls
                 if (x < 0) { x = 0; vx = -vx * bounce; bounceCount++; }
                 if (x > window.innerWidth - 200) { x = window.innerWidth - 200; vx = -vx * bounce; bounceCount++; }
                 if (y > window.innerHeight - 100) { 
@@ -1726,7 +2284,6 @@
                 if (bounceCount < 8) {
                     requestAnimationFrame(animatePopup);
                 } else {
-                    // Fall and delete
                     popup.style.transition = 'all 2s ease-in';
                     popup.style.transform = `translateY(200vh) rotate(1440deg)`;
                     popup.style.opacity = '0';
@@ -1747,17 +2304,21 @@
             updateDisplays();
             generateUpgrades();
             
-            // Show infinity indicator if active
             if (gameState.infinityMine) {
                 document.getElementById('infinityIndicator').style.display = 'block';
             }
             
-            // Show unlimited badge if active
             if (gameState.unlimitedAI) {
                 document.getElementById('unlimitedBadge').style.display = 'inline-block';
-                document.getElementById('chatCost').textContent = '✨ UNLIMITED - Chat for free forever! ✨';
-                document.getElementById('chatSend').textContent = 'Send (FREE!)';
             }
+            
+            // Update model selection
+            document.querySelectorAll('.model-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.model === gameState.selectedModel) {
+                    btn.classList.add('active');
+                }
+            });
         }
 
         // Main mining click
@@ -1772,7 +2333,14 @@
                 if (Math.random() * 100 < gameState.diamondChance) {
                     gameState.diamondOre++;
                     createParticle(e.clientX, e.clientY, '💠');
-                    showToast('💠 DIAMOND ORE! You lucky miner!');
+                    showToast('💠 DIAMOND ORE!');
+                }
+                
+                // Gem chance (1%)
+                if (Math.random() < 0.01) {
+                    gameState.gems++;
+                    createParticle(e.clientX, e.clientY, '💎');
+                    showToast('💎 GEM FOUND!');
                 }
                 
                 createMultipleParticles(e.clientX, e.clientY, 3);
@@ -1793,20 +2361,74 @@
             });
         });
 
+        // Model selection
+        document.querySelectorAll('.model-btn:not(#customModelBtn)').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                gameState.selectedModel = this.dataset.model;
+                saveGame();
+                showToast(`🤖 Model switched to ${this.dataset.model.split('/')[1]}`);
+            });
+        });
+
+        // Custom model
+        document.getElementById('customModelBtn').addEventListener('click', () => {
+            document.getElementById('customModelModal').classList.add('active');
+            document.getElementById('modalGems').textContent = gameState.gems;
+        });
+
+        document.getElementById('closeCustomModal').addEventListener('click', () => {
+            document.getElementById('customModelModal').classList.remove('active');
+        });
+
+        document.getElementById('buyCustomModel').addEventListener('click', () => {
+            const modelName = document.getElementById('customModelInput').value.trim();
+            
+            if (!modelName) {
+                showToast('❌ Please enter a model name');
+                return;
+            }
+            
+            if (BLACKLISTED_MODELS.includes(modelName)) {
+                showToast('❌ This model is blacklisted!');
+                return;
+            }
+            
+            if (gameState.gems < 1000) {
+                showToast('❌ Not enough gems! Need 1000');
+                return;
+            }
+            
+            gameState.gems -= 1000;
+            gameState.customModel = modelName;
+            gameState.selectedModel = modelName;
+            
+            // Update UI
+            document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('customModelBtn').classList.add('active');
+            document.getElementById('customModelBtn').textContent = `💎 ${modelName.split('/')[1] || modelName}`;
+            
+            document.getElementById('customModelModal').classList.remove('active');
+            updateDisplays();
+            saveGame();
+            showToast(`🤖 Custom model activated: ${modelName}`);
+        });
+
         // Upgrades system
         const upgradeData = [
             { id: 'pickaxe1', name: 'Better Pickaxe', desc: 'Your pickaxe is now slightly less terrible', cost: 100, effect: () => gameState.clickPower += 1, icon: '⛏️' },
-            { id: 'pickaxe2', name: 'Golden Pickaxe', desc: 'It\'s shiny. That\'s it. That\'s the upgrade.', cost: 500, effect: () => gameState.clickPower += 5, icon: '🥇' },
+            { id: 'pickaxe2', name: 'Golden Pickaxe', desc: 'It\'s shiny. That\'s it.', cost: 500, effect: () => gameState.clickPower += 5, icon: '🥇' },
             { id: 'pickaxe3', name: 'Diamond Pickaxe', desc: 'Minecraft would be proud', cost: 2000, effect: () => gameState.clickPower += 15, icon: '💎' },
             { id: 'auto1', name: 'Tiny Robot', desc: 'A small robot that mines while you sleep', cost: 1000, effect: () => gameState.autoMine += 1, icon: '🤖' },
-            { id: 'auto2', name: 'Robot Army', desc: 'Now you have many small robots. They judge you.', cost: 5000, effect: () => gameState.autoMine += 5, icon: '🦾' },
-            { id: 'auto3', name: 'AI Overlord', desc: 'The AI is now in charge. This is fine.', cost: 20000, effect: () => gameState.autoMine += 20, icon: '🧠' },
-            { id: 'luck1', name: 'Lucky Charm', desc: '+1% diamond chance. It\'s a rabbit foot.', cost: 3000, effect: () => gameState.diamondChance += 1, icon: '🍀' },
-            { id: 'luck2', name: 'Luckier Charm', desc: '+2% more luck. Now it\'s two rabbit feet.', cost: 10000, effect: () => gameState.diamondChance += 2, icon: '🎰' },
-            { id: 'luck3', name: 'Luckiest Charm', desc: '+5% luck. Poor rabbits.', cost: 30000, effect: () => gameState.diamondChance += 5, icon: '🌈' },
-            { id: 'mega1', name: 'Mega Miner', desc: 'x2 click power. You feel powerful.', cost: 50000, effect: () => gameState.clickPower *= 2, icon: '💪' },
-            { id: 'fake1', name: '???', desc: 'This upgrade does nothing. But you want it.', cost: 99999, effect: () => showToast('🤡 You bought nothing! Thanks for the ore!'), icon: '❓' },
-            { id: 'fake2', name: 'Air NFT', desc: 'You now own a picture of air. Congrats.', cost: 42069, effect: () => showToast('🖼️ Right-click saved!'), icon: '🖼️' },
+            { id: 'auto2', name: 'Robot Army', desc: 'Many small robots. They judge you.', cost: 5000, effect: () => gameState.autoMine += 5, icon: '🦾' },
+            { id: 'auto3', name: 'AI Overlord', desc: 'The AI is now in charge.', cost: 20000, effect: () => gameState.autoMine += 20, icon: '🧠' },
+            { id: 'luck1', name: 'Lucky Charm', desc: '+1% diamond chance', cost: 3000, effect: () => gameState.diamondChance += 1, icon: '🍀' },
+            { id: 'luck2', name: 'Luckier Charm', desc: '+2% more luck', cost: 10000, effect: () => gameState.diamondChance += 2, icon: '🎰' },
+            { id: 'luck3', name: 'Luckiest Charm', desc: '+5% luck', cost: 30000, effect: () => gameState.diamondChance += 5, icon: '🌈' },
+            { id: 'mega1', name: 'Mega Miner', desc: 'x2 click power', cost: 50000, effect: () => gameState.clickPower *= 2, icon: '💪' },
+            { id: 'gems1', name: 'Gem Finder', desc: '+2% gem chance per click', cost: 75000, effect: () => {}, icon: '💎' },
+            { id: 'fake1', name: 'Air NFT', desc: 'You now own a picture of air.', cost: 42069, effect: () => showToast('🖼️ Right-click saved!'), icon: '🖼️' },
         ];
 
         function generateUpgrades() {
@@ -1844,48 +2466,36 @@
                 saveGame();
                 showToast(`✨ Purchased: ${upgrade.name}!`);
             } else if (gameState.ore < upgrade.cost) {
-                showToast('❌ Not enough ore! Mine more!');
+                showToast('❌ Not enough ore!');
             }
         }
 
-        // AI Chat
-        const aiResponses = [
-            "Hmm, interesting question! *pretends to think* The answer is: mine more ore.",
-            "I've analyzed your query using advanced AI algorithms (Math.random()) and concluded: yes.",
-            "Error 418: I'm a teapot. Also, have you tried mining more ore?",
-            "According to my calculations, you should click the big rock approximately 47,392 more times.",
-            "I'm not saying the ore is sentient, but it definitely judges your mining technique.",
-            "Fun fact: Air ore is 100% organic, gluten-free, and exists only in your imagination!",
-            "My neural networks suggest that you're doing great! (This response cost you 30 ore btw)",
-            "*AI noises* beep boop... The meaning of life is... more ore.",
-            "I consulted the blockchain and it says: stonks go up when you mine.",
-            "Interesting! Let me think... *elevator music* ...have you considered gaming?",
-            "Claude has left the chat to play Minecraft. I'm filling in. Send ore.",
-            "Processing... Processing... ERROR: Too much swag detected in user.",
-            "The voices in my neural network say hi! They also say mine more.",
-            "According to my training data (this one txt file), you're the best miner ever!",
-            "🤖 *robotic voice* HUMAN. MINE. ORE. GOOD. *normal voice* Sorry, glitch.",
-        ];
-
-        document.getElementById('chatSend').addEventListener('click', sendMessage);
-        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+        // AI Chat with real API
+        const chatSend = document.getElementById('chatSend');
+        const chatInput = document.getElementById('chatInput');
+        
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
 
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            
+        async function sendMessage() {
+            const message = chatInput.value.trim();
             if (!message) return;
             
-            const cost = gameState.unlimitedAI ? 0 : 30;
+            const cost = gameState.unlimitedAI ? 0 : getMessageCost(gameState.messageCount);
             
-            if (gameState.ore < cost) {
-                showToast('❌ Not enough ore for AI! Need 30 💎');
+            if (gameState.ore < cost && !gameState.unlimitedAI) {
+                showToast(`❌ Need ${cost} ore!`);
                 return;
             }
             
-            gameState.ore -= cost;
+            // Deduct cost
+            if (!gameState.unlimitedAI) {
+                gameState.ore -= cost;
+                gameState.messageCount++;
+            }
+            
             updateDisplays();
             saveGame();
             
@@ -1897,21 +2507,113 @@
             userMsg.textContent = message;
             messagesDiv.appendChild(userMsg);
             
-            input.value = '';
+            chatInput.value = '';
+            chatSend.disabled = true;
             
             // Typing indicator
             const typingMsg = document.createElement('div');
             typingMsg.className = 'chat-message ai';
-            typingMsg.textContent = '🤔 Thinking... (not really)';
+            typingMsg.textContent = '🤔 Thinking...';
             messagesDiv.appendChild(typingMsg);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             
-            // AI response after delay
-            setTimeout(() => {
-                typingMsg.textContent = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }, 1000 + Math.random() * 1000);
+            try {
+                // Format model name for API
+                let modelToUse = gameState.selectedModel;
+                if (!modelToUse.startsWith('openrouter:')) {
+                    modelToUse = `openrouter:${modelToUse}`;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: gameState.userId,
+                        message: message,
+                        model: modelToUse
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                
+                const data = await response.json();
+                typingMsg.innerHTML = parseCodeBlocks(data.response || 'No response received');
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                // Fallback to local responses
+                const fallbackResponses = [
+                    "Hmm, the API seems to be taking a break. Try again in a moment! Meanwhile, mine more ore! 💎",
+                    "Connection hiccup! The AI is probably too busy admiring your mining skills. 🌟",
+                    "Error connecting to the AI. But hey, that means more time to click rocks! ⛏️",
+                ];
+                typingMsg.textContent = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+            }
+            
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            chatSend.disabled = false;
         }
+
+        // Parse code blocks with <codestart> and <codeend>
+        function parseCodeBlocks(text) {
+            const codeBlockRegex = /<codestart>([\s\S]*?)<codeend>/g;
+            let result = text;
+            let blockId = 0;
+            
+            result = result.replace(codeBlockRegex, (match, code) => {
+                blockId++;
+                return `<div class="code-block-wrapper" data-code-id="${blockId}"><pre class="code-block">${escapeHtml(code.trim())}</pre></div>`;
+            });
+            
+            // Also handle markdown-style code blocks
+            const markdownRegex = /```(\w+)?\n?([\s\S]*?)```/g;
+            result = result.replace(markdownRegex, (match, lang, code) => {
+                blockId++;
+                return `<div class="code-block-wrapper" data-code-id="${blockId}"><pre class="code-block">${escapeHtml(code.trim())}</pre></div>`;
+            });
+            
+            return result;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Floating copy button for code blocks
+        const floatingCopyBtn = document.getElementById('floatingCopyBtn');
+        let currentCodeBlock = null;
+
+        document.addEventListener('mousemove', (e) => {
+            const codeWrapper = e.target.closest('.code-block-wrapper');
+            
+            if (codeWrapper) {
+                currentCodeBlock = codeWrapper.querySelector('.code-block');
+                floatingCopyBtn.style.display = 'block';
+                floatingCopyBtn.style.left = (e.clientX + 15) + 'px';
+                floatingCopyBtn.style.top = (e.clientY - 15) + 'px';
+            } else {
+                floatingCopyBtn.style.display = 'none';
+                currentCodeBlock = null;
+            }
+        });
+
+        floatingCopyBtn.addEventListener('click', () => {
+            if (currentCodeBlock) {
+                const text = currentCodeBlock.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    floatingCopyBtn.textContent = '✅ Copied!';
+                    setTimeout(() => {
+                        floatingCopyBtn.textContent = '📋 Copy';
+                    }, 1500);
+                });
+            }
+        });
 
         // Minigames
         document.querySelectorAll('.minigame-card').forEach(card => {
@@ -1920,12 +2622,24 @@
 
         document.getElementById('gameClose').addEventListener('click', closeMinigame);
 
+        let currentGameCleanup = null;
+
         function startMinigame(gameType) {
             const modal = document.getElementById('gameModal');
+            const container = document.getElementById('gameContainer');
             const title = document.getElementById('gameTitle');
             const area = document.getElementById('gameArea');
             
+            // Reset container size
+            container.classList.remove('fullscreen');
+            
             modal.classList.add('active');
+            
+            // Cleanup previous game
+            if (currentGameCleanup) {
+                currentGameCleanup();
+                currentGameCleanup = null;
+            }
             
             switch(gameType) {
                 case 'reaction': reactionGame(title, area); break;
@@ -1936,15 +2650,30 @@
                 case 'math': mathGame(title, area); break;
                 case 'slider': sliderGame(title, area); break;
                 case 'wheel': wheelGame(title, area); break;
-                case 'jump': jumpGame(title, area); break;
                 case 'boss': bossGame(title, area); break;
+                case 'subway': subwayGame(title, area, container); break;
+                case 'fnf': fnfGame(title, area); break;
+                case 'snake': snakeGame(title, area); break;
+                case 'flappy': flappyGame(title, area); break;
+                case 'pong': pongGame(title, area); break;
+                case 'breakout': breakoutGame(title, area); break;
+                case 'typing': typingGame(title, area); break;
+                case 'colorMatch': colorMatchGame(title, area); break;
+                case 'aim': aimGame(title, area); break;
+                case '2048': game2048(title, area); break;
             }
         }
 
         function closeMinigame() {
             document.getElementById('gameModal').classList.remove('active');
             document.getElementById('gameArea').innerHTML = '';
+            if (currentGameCleanup) {
+                currentGameCleanup();
+                currentGameCleanup = null;
+            }
         }
+
+        // ==================== MINIGAMES ====================
 
         // Reaction Game
         function reactionGame(title, area) {
@@ -1956,11 +2685,11 @@
             `;
             
             const box = document.getElementById('reactionBox');
-            let startTime, canClick = false;
+            let startTime, canClick = false, timeout;
             
             const delay = 1000 + Math.random() * 4000;
             
-            setTimeout(() => {
+            timeout = setTimeout(() => {
                 box.classList.remove('waiting');
                 box.classList.add('ready');
                 box.textContent = 'CLICK!';
@@ -1968,7 +2697,7 @@
                 canClick = true;
             }, delay);
             
-            box.addEventListener('click', function handler() {
+            function handler() {
                 if (!canClick) {
                     document.getElementById('reactionResult').textContent = 'Too early! 😅';
                     box.removeEventListener('click', handler);
@@ -1987,7 +2716,14 @@
                 saveGame();
                 
                 box.removeEventListener('click', handler);
-            });
+            }
+            
+            box.addEventListener('click', handler);
+            
+            currentGameCleanup = () => {
+                clearTimeout(timeout);
+                box.removeEventListener('click', handler);
+            };
         }
 
         // Memory Game
@@ -2058,9 +2794,9 @@
 
         // Dodge Game
         function dodgeGame(title, area) {
-            title.textContent = '🏃 Dodge Blocks';
+            title.textContent = '🚗 Dodge Blocks';
             area.innerHTML = `
-                <p>Move your mouse to dodge! Survive as long as possible!</p>
+                <p>Move your mouse to dodge!</p>
                 <div class="dodge-area" id="dodgeArea">
                     <div class="dodge-player" id="dodgePlayer"></div>
                 </div>
@@ -2074,15 +2810,19 @@
             let startTime = Date.now();
             let gameRunning = true;
             let blocks = [];
+            let animFrame;
+            let spawnInterval;
             
-            dodgeArea.addEventListener('mousemove', (e) => {
+            function handleMove(e) {
                 if (!gameRunning) return;
                 const rect = dodgeArea.getBoundingClientRect();
                 const x = Math.max(0, Math.min(270, e.clientX - rect.left - 15));
                 const y = Math.max(0, Math.min(270, e.clientY - rect.top - 15));
                 player.style.left = x + 'px';
                 player.style.top = y + 'px';
-            });
+            }
+            
+            dodgeArea.addEventListener('mousemove', handleMove);
             
             function spawnBlock() {
                 if (!gameRunning) return;
@@ -2114,7 +2854,6 @@
                         blocks = blocks.filter(b => b !== block);
                     }
                     
-                    // Collision detection
                     if (playerRect.left < blockRect.right &&
                         playerRect.right > blockRect.left &&
                         playerRect.top < blockRect.bottom &&
@@ -2129,14 +2868,21 @@
                     }
                 });
                 
-                if (gameRunning) requestAnimationFrame(update);
+                if (gameRunning) animFrame = requestAnimationFrame(update);
             }
             
-            setInterval(() => {
+            spawnInterval = setInterval(() => {
                 if (gameRunning) spawnBlock();
             }, 500);
             
             update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(spawnInterval);
+                cancelAnimationFrame(animFrame);
+                dodgeArea.removeEventListener('mousemove', handleMove);
+            };
         }
 
         // Speed Click Game
@@ -2144,7 +2890,7 @@
             title.textContent = '👆 Speed Click';
             area.innerHTML = `
                 <p>Click as fast as you can in 10 seconds!</p>
-                <div class="click-target" id="clickTarget"></div>
+                <div class="click-target" id="clickTarget" style="width:150px;height:150px;background:radial-gradient(circle,var(--neon-pink),var(--neon-blue));border-radius:50%;cursor:pointer;"></div>
                 <p class="game-score" id="clickCount">Clicks: 0</p>
                 <p class="game-timer" id="clickTimer">10.0s</p>
             `;
@@ -2154,12 +2900,14 @@
             let timeLeft = 10;
             let gameRunning = true;
             
-            target.addEventListener('click', () => {
+            function handleClick(e) {
                 if (!gameRunning) return;
                 clicks++;
                 document.getElementById('clickCount').textContent = `Clicks: ${clicks}`;
-                createMultipleParticles(event.clientX, event.clientY, 2);
-            });
+                createMultipleParticles(e.clientX, e.clientY, 2);
+            }
+            
+            target.addEventListener('click', handleClick);
             
             const timer = setInterval(() => {
                 timeLeft -= 0.1;
@@ -2176,6 +2924,12 @@
                     document.getElementById('clickTimer').textContent = `Done! +${reward} ore!`;
                 }
             }, 100);
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+                target.removeEventListener('click', handleClick);
+            };
         }
 
         // Rhythm Game
@@ -2183,8 +2937,8 @@
             title.textContent = '🎵 Rhythm Tap';
             area.innerHTML = `
                 <p>Press SPACE when notes hit the target!</p>
-                <div class="rhythm-lane" id="rhythmLane">
-                    <div class="rhythm-target"></div>
+                <div class="rhythm-lane" id="rhythmLane" style="width:80px;height:300px;background:var(--bg-tertiary);border-radius:10px;position:relative;overflow:hidden;">
+                    <div style="position:absolute;bottom:20px;left:10px;right:10px;height:20px;background:rgba(0,245,255,0.3);border-radius:5px;border:2px solid var(--neon-blue);"></div>
                 </div>
                 <p class="game-score" id="rhythmScore">Score: 0</p>
                 <p class="game-timer" id="rhythmHits">Perfect: 0 | Good: 0 | Miss: 0</p>
@@ -2197,13 +2951,14 @@
             let gameRunning = true;
             let notesSpawned = 0;
             const maxNotes = 15;
+            let animFrame;
+            let spawnInterval;
             
             function spawnNote() {
                 if (!gameRunning || notesSpawned >= maxNotes) return;
                 
                 const note = document.createElement('div');
-                note.className = 'rhythm-note';
-                note.style.top = '-20px';
+                note.style.cssText = 'position:absolute;left:10px;right:10px;height:20px;background:var(--neon-pink);border-radius:5px;top:-20px;';
                 lane.appendChild(note);
                 notes.push({ el: note, hit: false });
                 notesSpawned++;
@@ -2212,7 +2967,7 @@
             function update() {
                 if (!gameRunning) return;
                 
-                notes.forEach((note, i) => {
+                notes.forEach((note) => {
                     const top = parseFloat(note.el.style.top) + 2;
                     note.el.style.top = top + 'px';
                     
@@ -2235,7 +2990,7 @@
                     saveGame();
                     document.getElementById('rhythmScore').textContent = `Done! +${reward} ore!`;
                 } else {
-                    requestAnimationFrame(update);
+                    animFrame = requestAnimationFrame(update);
                 }
             }
             
@@ -2244,7 +2999,7 @@
                 document.getElementById('rhythmHits').textContent = `Perfect: ${perfect} | Good: ${good} | Miss: ${miss}`;
             }
             
-            document.addEventListener('keydown', function handler(e) {
+            function handleKeydown(e) {
                 if (e.code !== 'Space' || !gameRunning) return;
                 e.preventDefault();
                 
@@ -2275,18 +3030,23 @@
                     }
                     updateRhythmDisplay();
                 }
-                
-                if (!gameRunning) {
-                    document.removeEventListener('keydown', handler);
-                }
-            });
+            }
             
-            const spawnInterval = setInterval(() => {
+            document.addEventListener('keydown', handleKeydown);
+            
+            spawnInterval = setInterval(() => {
                 if (gameRunning && notesSpawned < maxNotes) spawnNote();
                 else clearInterval(spawnInterval);
             }, 600);
             
             update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(spawnInterval);
+                cancelAnimationFrame(animFrame);
+                document.removeEventListener('keydown', handleKeydown);
+            };
         }
 
         // Math Game
@@ -2324,7 +3084,7 @@
                 input.focus();
             }
             
-            input.addEventListener('keypress', (e) => {
+            function handleKeypress(e) {
                 if (e.key === 'Enter' && gameRunning) {
                     if (parseInt(input.value) === answer) {
                         correct++;
@@ -2335,7 +3095,9 @@
                         setTimeout(() => input.style.borderColor = '', 200);
                     }
                 }
-            });
+            }
+            
+            input.addEventListener('keypress', handleKeypress);
             
             const timer = setInterval(() => {
                 timeLeft -= 0.1;
@@ -2355,9 +3117,15 @@
             }, 100);
             
             newProblem();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+                input.removeEventListener('keypress', handleKeypress);
+            };
         }
 
-        // Slider Game (Diamond chance)
+        // Slider Game
         function sliderGame(title, area) {
             title.textContent = '🎯 Precision Stop';
             area.innerHTML = `
@@ -2374,6 +3142,7 @@
             let direction = 1;
             let speed = 3;
             let gameRunning = true;
+            let animFrame;
             
             function animate() {
                 if (!gameRunning) return;
@@ -2383,10 +3152,10 @@
                 if (position <= 0) direction = 1;
                 
                 marker.style.left = position + 'px';
-                requestAnimationFrame(animate);
+                animFrame = requestAnimationFrame(animate);
             }
             
-            document.getElementById('stopBtn').addEventListener('click', () => {
+            function handleStop() {
                 if (!gameRunning) return;
                 gameRunning = false;
                 
@@ -2395,7 +3164,7 @@
                 
                 if (position >= greenStart && position <= greenEnd) {
                     gameState.diamondOre += 1;
-                    document.getElementById('sliderResult').textContent = '💠 DIAMOND! Perfect precision!';
+                    document.getElementById('sliderResult').textContent = '💠 DIAMOND! Perfect!';
                     showToast('💠 +1 Diamond Ore!');
                 } else {
                     const reward = 50;
@@ -2406,9 +3175,16 @@
                 
                 updateDisplays();
                 saveGame();
-            });
+            }
+            
+            document.getElementById('stopBtn').addEventListener('click', handleStop);
             
             animate();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                cancelAnimationFrame(animFrame);
+            };
         }
 
         // Wheel Game
@@ -2439,7 +3215,7 @@
                 { text: '5 Diamonds!', ore: 0, diamond: 5 },
             ];
             
-            spinBtn.addEventListener('click', () => {
+            function handleSpin() {
                 if (spinning) return;
                 spinning = true;
                 spinBtn.disabled = true;
@@ -2470,104 +3246,9 @@
                     spinning = false;
                     spinBtn.disabled = false;
                 }, 4000);
-            });
-        }
-
-        // Jump Game
-        function jumpGame(title, area) {
-            title.textContent = '🦘 Gravity Jump';
-            area.innerHTML = `
-                <p>Press SPACE to jump on platforms!</p>
-                <div class="jump-area" id="jumpArea">
-                    <div class="jump-player" id="jumpPlayer"></div>
-                </div>
-                <p class="game-score" id="jumpScore">Platforms: 0</p>
-            `;
-            
-            const jumpArea = document.getElementById('jumpArea');
-            const player = document.getElementById('jumpPlayer');
-            let playerY = 20;
-            let velocityY = 0;
-            let platforms = [];
-            let score = 0;
-            let gameRunning = true;
-            const gravity = 0.3;
-            const jumpForce = -10;
-            
-            // Create initial platforms
-            for (let i = 0; i < 5; i++) {
-                createPlatform(50 + Math.random() * 170, 160 - i * 40);
             }
             
-            function createPlatform(x, y) {
-                const platform = document.createElement('div');
-                platform.className = 'jump-platform';
-                platform.style.left = x + 'px';
-                platform.style.bottom = y + 'px';
-                jumpArea.appendChild(platform);
-                platforms.push({ el: platform, x, y });
-            }
-            
-            function update() {
-                if (!gameRunning) return;
-                
-                velocityY += gravity;
-                playerY -= velocityY;
-                
-                if (playerY < 20) {
-                    playerY = 20;
-                    velocityY = 0;
-                }
-                
-                player.style.bottom = playerY + 'px';
-                
-                // Check platform collisions
-                platforms.forEach(p => {
-                    const pBottom = parseFloat(p.el.style.bottom);
-                    if (velocityY > 0 &&
-                        playerY <= pBottom + 15 &&
-                        playerY >= pBottom &&
-                        130 > parseFloat(p.el.style.left) &&
-                        130 < parseFloat(p.el.style.left) + 80) {
-                        velocityY = jumpForce;
-                        score++;
-                        document.getElementById('jumpScore').textContent = `Platforms: ${score}`;
-                        
-                        // Move platforms down
-                        platforms.forEach(pl => {
-                            const currentBottom = parseFloat(pl.el.style.bottom);
-                            pl.el.style.bottom = (currentBottom - 30) + 'px';
-                            
-                            if (currentBottom < 0) {
-                                pl.el.style.bottom = '180px';
-                                pl.el.style.left = (50 + Math.random() * 170) + 'px';
-                            }
-                        });
-                    }
-                });
-                
-                if (playerY < 0) {
-                    gameRunning = false;
-                    const reward = score * 15;
-                    gameState.ore += reward;
-                    gameState.totalMined += reward;
-                    updateDisplays();
-                    saveGame();
-                    document.getElementById('jumpScore').textContent = `Game Over! +${reward} ore!`;
-                }
-                
-                if (gameRunning) requestAnimationFrame(update);
-            }
-            
-            document.addEventListener('keydown', function handler(e) {
-                if (e.code === 'Space' && gameRunning && playerY <= 25) {
-                    e.preventDefault();
-                    velocityY = jumpForce;
-                }
-                if (!gameRunning) document.removeEventListener('keydown', handler);
-            });
-            
-            update();
+            spinBtn.addEventListener('click', handleSpin);
         }
 
         // Boss Game
@@ -2579,7 +3260,7 @@
                     <div class="boss-health">
                         <div class="boss-health-fill" id="bossHealth" style="width: 100%"></div>
                     </div>
-                    <div class="boss-enemy" id="bossEnemy">👹</div>
+                    <div class="boss-enemy" id="bossEnemy" style="font-size:8rem;cursor:pointer;user-select:none;">👹</div>
                 </div>
                 <p class="game-score" id="bossScore">HP: 100/100</p>
             `;
@@ -2589,7 +3270,7 @@
             let hp = 100;
             let gameRunning = true;
             
-            boss.addEventListener('click', (e) => {
+            function handleClick(e) {
                 if (!gameRunning) return;
                 
                 const damage = 5 + Math.floor(Math.random() * 5);
@@ -2621,7 +3302,1080 @@
                     document.getElementById('bossScore').textContent = `Victory! +${oreReward} ore +${diamondReward} 💠!`;
                     showToast('👹 Boss Defeated! +1 Diamond!');
                 }
+            }
+            
+            boss.addEventListener('click', handleClick);
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                boss.removeEventListener('click', handleClick);
+            };
+        }
+
+        // Subway Surfers Clone
+        function subwayGame(title, area, container) {
+            title.textContent = '🏃 Air Surfers';
+            area.innerHTML = `
+                <p>Use LEFT/RIGHT arrows to move, UP to jump!</p>
+                <div class="subway-game" id="subwayGame">
+                    <div class="subway-player" id="subwayPlayer" style="left:130px;"></div>
+                    <div class="subway-lanes"></div>
+                </div>
+                <p class="game-score" id="subwayScore">Distance: 0m | Coins: 0</p>
+            `;
+            
+            const game = document.getElementById('subwayGame');
+            const player = document.getElementById('subwayPlayer');
+            let lane = 1; // 0, 1, 2
+            let distance = 0;
+            let coins = 0;
+            let gameRunning = true;
+            let obstacles = [];
+            let coinElements = [];
+            let animFrame;
+            let isJumping = false;
+            
+            const lanePositions = [30, 130, 230];
+            
+            function handleKeydown(e) {
+                if (!gameRunning) return;
+                
+                if (e.key === 'ArrowLeft' && lane > 0) {
+                    lane--;
+                    player.style.left = lanePositions[lane] + 'px';
+                }
+                if (e.key === 'ArrowRight' && lane < 2) {
+                    lane++;
+                    player.style.left = lanePositions[lane] + 'px';
+                }
+                if (e.key === 'ArrowUp' && !isJumping) {
+                    isJumping = true;
+                    player.style.bottom = '150px';
+                    setTimeout(() => {
+                        player.style.bottom = '50px';
+                        isJumping = false;
+                    }, 500);
+                }
+            }
+            
+            document.addEventListener('keydown', handleKeydown);
+            
+            function spawnObstacle() {
+                const obs = document.createElement('div');
+                obs.style.cssText = `position:absolute;width:60px;height:40px;background:var(--neon-pink);border-radius:5px;top:-40px;left:${lanePositions[Math.floor(Math.random() * 3)]}px;`;
+                game.appendChild(obs);
+                obstacles.push(obs);
+            }
+            
+            function spawnCoin() {
+                const coin = document.createElement('div');
+                coin.style.cssText = `position:absolute;width:20px;height:20px;background:gold;border-radius:50%;top:-20px;left:${lanePositions[Math.floor(Math.random() * 3)] + 10}px;`;
+                game.appendChild(coin);
+                coinElements.push(coin);
+            }
+            
+            let spawnTimer = 0;
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                distance += 0.5;
+                spawnTimer++;
+                
+                if (spawnTimer % 60 === 0) spawnObstacle();
+                if (spawnTimer % 30 === 0) spawnCoin();
+                
+                const playerRect = player.getBoundingClientRect();
+                
+                obstacles.forEach((obs, i) => {
+                    const top = parseFloat(obs.style.top) + 5;
+                    obs.style.top = top + 'px';
+                    
+                    if (top > 400) {
+                        obs.remove();
+                        obstacles.splice(i, 1);
+                    }
+                    
+                    const obsRect = obs.getBoundingClientRect();
+                    if (!isJumping &&
+                        playerRect.left < obsRect.right &&
+                        playerRect.right > obsRect.left &&
+                        playerRect.top < obsRect.bottom &&
+                        playerRect.bottom > obsRect.top) {
+                        gameRunning = false;
+                        const reward = Math.floor(distance / 100) * 50 + coins * 10;
+                        gameState.ore += reward;
+                        gameState.totalMined += reward;
+                        updateDisplays();
+                        saveGame();
+                        document.getElementById('subwayScore').textContent = `Game Over! +${reward} ore!`;
+                    }
+                });
+                
+                coinElements.forEach((coin, i) => {
+                    const top = parseFloat(coin.style.top) + 5;
+                    coin.style.top = top + 'px';
+                    
+                    if (top > 400) {
+                        coin.remove();
+                        coinElements.splice(i, 1);
+                    }
+                    
+                    const coinRect = coin.getBoundingClientRect();
+                    if (playerRect.left < coinRect.right &&
+                        playerRect.right > coinRect.left &&
+                        playerRect.top < coinRect.bottom &&
+                        playerRect.bottom > coinRect.top) {
+                        coins++;
+                        coin.remove();
+                        coinElements.splice(i, 1);
+                    }
+                });
+                
+                document.getElementById('subwayScore').textContent = `Distance: ${Math.floor(distance)}m | Coins: ${coins}`;
+                
+                if (gameRunning) animFrame = requestAnimationFrame(update);
+            }
+            
+            update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                cancelAnimationFrame(animFrame);
+                document.removeEventListener('keydown', handleKeydown);
+            };
+        }
+
+        // Friday Night Funkin' Clone
+        function fnfGame(title, area) {
+            title.textContent = '🎤 Friday Night Minin\'';
+            area.innerHTML = `
+                <p>Press D F J K when notes hit the targets!</p>
+                <div class="fnf-game" id="fnfGame">
+                    <div class="fnf-lanes">
+                        <div class="fnf-lane" data-key="d"><div class="fnf-target"></div></div>
+                        <div class="fnf-lane" data-key="f"><div class="fnf-target"></div></div>
+                        <div class="fnf-lane" data-key="j"><div class="fnf-target"></div></div>
+                        <div class="fnf-lane" data-key="k"><div class="fnf-target"></div></div>
+                    </div>
+                </div>
+                <div class="fnf-keys">
+                    <div class="fnf-key" id="key-d">D</div>
+                    <div class="fnf-key" id="key-f">F</div>
+                    <div class="fnf-key" id="key-j">J</div>
+                    <div class="fnf-key" id="key-k">K</div>
+                </div>
+                <p class="game-score" id="fnfScore">Score: 0 | Combo: 0</p>
+            `;
+            
+            const game = document.getElementById('fnfGame');
+            const lanes = game.querySelectorAll('.fnf-lane');
+            let score = 0;
+            let combo = 0;
+            let gameRunning = true;
+            let notes = [];
+            let notesSpawned = 0;
+            const maxNotes = 40;
+            const colors = ['left', 'down', 'up', 'right'];
+            let animFrame;
+            
+            function spawnNote() {
+                if (!gameRunning || notesSpawned >= maxNotes) return;
+                
+                const laneIndex = Math.floor(Math.random() * 4);
+                const lane = lanes[laneIndex];
+                const note = document.createElement('div');
+                note.className = `fnf-note ${colors[laneIndex]}`;
+                note.style.top = '-30px';
+                note.dataset.lane = laneIndex;
+                lane.appendChild(note);
+                notes.push({ el: note, lane: laneIndex, hit: false });
+                notesSpawned++;
+            }
+            
+            function handleKeydown(e) {
+                if (!gameRunning) return;
+                
+                const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
+                const laneIndex = keyMap[e.key.toLowerCase()];
+                
+                if (laneIndex === undefined) return;
+                
+                const keyEl = document.getElementById(`key-${e.key.toLowerCase()}`);
+                if (keyEl) keyEl.classList.add('active');
+                
+                const targetTop = 330;
+                let hitNote = null;
+                let closestDist = 50;
+                
+                notes.forEach(note => {
+                    if (note.hit || note.lane !== laneIndex) return;
+                    const top = parseFloat(note.el.style.top);
+                    const dist = Math.abs(top - targetTop);
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        hitNote = note;
+                    }
+                });
+                
+                if (hitNote) {
+                    hitNote.hit = true;
+                    hitNote.el.remove();
+                    combo++;
+                    score += 25 * (1 + Math.floor(combo / 10) * 0.1);
+                    document.getElementById('fnfScore').textContent = `Score: ${Math.floor(score)} | Combo: ${combo}`;
+                }
+            }
+            
+            function handleKeyup(e) {
+                const keyEl = document.getElementById(`key-${e.key.toLowerCase()}`);
+                if (keyEl) keyEl.classList.remove('active');
+            }
+            
+            document.addEventListener('keydown', handleKeydown);
+            document.addEventListener('keyup', handleKeyup);
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                notes.forEach((note, i) => {
+                    if (note.hit) return;
+                    const top = parseFloat(note.el.style.top) + 3;
+                    note.el.style.top = top + 'px';
+                    
+                    if (top > 380) {
+                        note.hit = true;
+                        note.el.remove();
+                        combo = 0;
+                        document.getElementById('fnfScore').textContent = `Score: ${Math.floor(score)} | Combo: ${combo}`;
+                    }
+                });
+                
+                notes = notes.filter(n => !n.hit);
+                
+                if (notes.length === 0 && notesSpawned >= maxNotes) {
+                    gameRunning = false;
+                    const reward = Math.floor(score);
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('fnfScore').textContent = `Song Complete! +${reward} ore!`;
+                } else {
+                    animFrame = requestAnimationFrame(update);
+                }
+            }
+            
+            const spawnInterval = setInterval(() => {
+                if (gameRunning && notesSpawned < maxNotes) spawnNote();
+                else clearInterval(spawnInterval);
+            }, 400);
+            
+            update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                cancelAnimationFrame(animFrame);
+                clearInterval(spawnInterval);
+                document.removeEventListener('keydown', handleKeydown);
+                document.removeEventListener('keyup', handleKeyup);
+            };
+        }
+
+        // Snake Game
+        function snakeGame(title, area) {
+            title.textContent = '🐍 Air Snake';
+            area.innerHTML = `
+                <p>Use arrow keys to move!</p>
+                <div class="snake-game" id="snakeGame"></div>
+                <p class="game-score" id="snakeScore">Length: 3</p>
+            `;
+            
+            const game = document.getElementById('snakeGame');
+            let snake = [{x: 150, y: 150}, {x: 135, y: 150}, {x: 120, y: 150}];
+            let direction = {x: 15, y: 0};
+            let food = {x: 225, y: 150};
+            let gameRunning = true;
+            let gameInterval;
+            
+            function draw() {
+                game.innerHTML = '';
+                
+                // Draw food
+                const foodEl = document.createElement('div');
+                foodEl.className = 'snake-food';
+                foodEl.style.left = food.x + 'px';
+                foodEl.style.top = food.y + 'px';
+                game.appendChild(foodEl);
+                
+                // Draw snake
+                snake.forEach((seg, i) => {
+                    const segEl = document.createElement('div');
+                    segEl.className = 'snake-segment';
+                    segEl.style.left = seg.x + 'px';
+                    segEl.style.top = seg.y + 'px';
+                    if (i === 0) segEl.style.background = 'var(--neon-blue)';
+                    game.appendChild(segEl);
+                });
+            }
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                const newHead = {
+                    x: snake[0].x + direction.x,
+                    y: snake[0].y + direction.y
+                };
+                
+                // Wall collision
+                if (newHead.x < 0 || newHead.x >= 300 || newHead.y < 0 || newHead.y >= 300) {
+                    endGame();
+                    return;
+                }
+                
+                // Self collision
+                if (snake.some(seg => seg.x === newHead.x && seg.y === newHead.y)) {
+                    endGame();
+                    return;
+                }
+                
+                snake.unshift(newHead);
+                
+                // Food collision
+                if (newHead.x === food.x && newHead.y === food.y) {
+                    food = {
+                        x: Math.floor(Math.random() * 20) * 15,
+                        y: Math.floor(Math.random() * 20) * 15
+                    };
+                    document.getElementById('snakeScore').textContent = `Length: ${snake.length}`;
+                } else {
+                    snake.pop();
+                }
+                
+                draw();
+            }
+            
+            function endGame() {
+                gameRunning = false;
+                clearInterval(gameInterval);
+                const reward = (snake.length - 3) * 10;
+                gameState.ore += reward;
+                gameState.totalMined += reward;
+                updateDisplays();
+                saveGame();
+                document.getElementById('snakeScore').textContent = `Game Over! +${reward} ore!`;
+            }
+            
+            function handleKeydown(e) {
+                if (!gameRunning) return;
+                
+                const newDir = {x: direction.x, y: direction.y};
+                
+                if (e.key === 'ArrowUp' && direction.y === 0) { newDir.x = 0; newDir.y = -15; }
+                if (e.key === 'ArrowDown' && direction.y === 0) { newDir.x = 0; newDir.y = 15; }
+                if (e.key === 'ArrowLeft' && direction.x === 0) { newDir.x = -15; newDir.y = 0; }
+                if (e.key === 'ArrowRight' && direction.x === 0) { newDir.x = 15; newDir.y = 0; }
+                
+                direction = newDir;
+            }
+            
+            document.addEventListener('keydown', handleKeydown);
+            
+            draw();
+            gameInterval = setInterval(update, 150);
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(gameInterval);
+                document.removeEventListener('keydown', handleKeydown);
+            };
+        }
+
+        // Flappy Bird Clone
+        function flappyGame(title, area) {
+            title.textContent = '🐦 Flappy Ore';
+            area.innerHTML = `
+                <p>Click or press SPACE to flap!</p>
+                <div class="flappy-game" id="flappyGame">
+                    <div class="flappy-bird" id="flappyBird" style="top:200px;"></div>
+                </div>
+                <p class="game-score" id="flappyScore">Score: 0</p>
+            `;
+            
+            const game = document.getElementById('flappyGame');
+            const bird = document.getElementById('flappyBird');
+            let birdY = 200;
+            let velocity = 0;
+            let score = 0;
+            let gameRunning = true;
+            let pipes = [];
+            let animFrame;
+            let spawnTimer = 0;
+            
+            const gravity = 0.5;
+            const jumpForce = -8;
+            
+            function flap() {
+                if (!gameRunning) return;
+                velocity = jumpForce;
+            }
+            
+            function handleKeydown(e) {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    flap();
+                }
+            }
+            
+            game.addEventListener('click', flap);
+            document.addEventListener('keydown', handleKeydown);
+            
+            function spawnPipe() {
+                const gapY = 100 + Math.random() * 200;
+                const gapHeight = 100;
+                
+                const topPipe = document.createElement('div');
+                topPipe.className = 'flappy-pipe';
+                topPipe.style.cssText = `right:-50px;top:0;height:${gapY - gapHeight/2}px;`;
+                game.appendChild(topPipe);
+                
+                const bottomPipe = document.createElement('div');
+                bottomPipe.className = 'flappy-pipe';
+                bottomPipe.style.cssText = `right:-50px;bottom:0;height:${400 - gapY - gapHeight/2}px;`;
+                game.appendChild(bottomPipe);
+                
+                pipes.push({ top: topPipe, bottom: bottomPipe, scored: false });
+            }
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                velocity += gravity;
+                birdY += velocity;
+                bird.style.top = birdY + 'px';
+                
+                // Bounds check
+                if (birdY < 0 || birdY > 370) {
+                    endGame();
+                    return;
+                }
+                
+                spawnTimer++;
+                if (spawnTimer % 100 === 0) spawnPipe();
+                
+                const birdRect = bird.getBoundingClientRect();
+                
+                pipes.forEach((pipe, i) => {
+                    const right = parseFloat(pipe.top.style.right) + 3;
+                    pipe.top.style.right = right + 'px';
+                    pipe.bottom.style.right = right + 'px';
+                    
+                    if (right > 300) {
+                        pipe.top.remove();
+                        pipe.bottom.remove();
+                        pipes.splice(i, 1);
+                    }
+                    
+                    // Collision
+                    const topRect = pipe.top.getBoundingClientRect();
+                    const bottomRect = pipe.bottom.getBoundingClientRect();
+                    
+                    if ((birdRect.left < topRect.right && birdRect.right > topRect.left &&
+                         birdRect.top < topRect.bottom) ||
+                        (birdRect.left < bottomRect.right && birdRect.right > bottomRect.left &&
+                         birdRect.bottom > bottomRect.top)) {
+                        endGame();
+                        return;
+                    }
+                    
+                    // Score
+                    if (!pipe.scored && right > 250) {
+                        pipe.scored = true;
+                        score++;
+                        document.getElementById('flappyScore').textContent = `Score: ${score}`;
+                    }
+                });
+                
+                if (gameRunning) animFrame = requestAnimationFrame(update);
+            }
+            
+            function endGame() {
+                gameRunning = false;
+                const reward = score * 20;
+                gameState.ore += reward;
+                gameState.totalMined += reward;
+                updateDisplays();
+                saveGame();
+                document.getElementById('flappyScore').textContent = `Game Over! +${reward} ore!`;
+            }
+            
+            update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                cancelAnimationFrame(animFrame);
+                game.removeEventListener('click', flap);
+                document.removeEventListener('keydown', handleKeydown);
+            };
+        }
+
+        // Pong Game
+        function pongGame(title, area) {
+            title.textContent = '🏓 Air Pong';
+            area.innerHTML = `
+                <p>Move mouse to control paddle!</p>
+                <div class="pong-game" id="pongGame">
+                    <div class="pong-paddle" id="playerPaddle" style="left:20px;top:120px;"></div>
+                    <div class="pong-paddle" id="aiPaddle" style="right:20px;top:120px;"></div>
+                    <div class="pong-ball" id="pongBall" style="left:192px;top:142px;"></div>
+                </div>
+                <p class="game-score" id="pongScore">You: 0 | AI: 0</p>
+            `;
+            
+            const game = document.getElementById('pongGame');
+            const playerPaddle = document.getElementById('playerPaddle');
+            const aiPaddle = document.getElementById('aiPaddle');
+            const ball = document.getElementById('pongBall');
+            
+            let ballX = 192, ballY = 142;
+            let ballVX = 3, ballVY = 2;
+            let playerScore = 0, aiScore = 0;
+            let gameRunning = true;
+            let animFrame;
+            
+            function handleMove(e) {
+                const rect = game.getBoundingClientRect();
+                const y = Math.max(0, Math.min(240, e.clientY - rect.top - 30));
+                playerPaddle.style.top = y + 'px';
+            }
+            
+            game.addEventListener('mousemove', handleMove);
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                // Move ball
+                ballX += ballVX;
+                ballY += ballVY;
+                
+                // Wall bounce
+                if (ballY <= 0 || ballY >= 285) ballVY = -ballVY;
+                
+                // AI paddle movement
+                const aiY = parseFloat(aiPaddle.style.top);
+                if (ballY < aiY + 30) aiPaddle.style.top = Math.max(0, aiY - 3) + 'px';
+                if (ballY > aiY + 30) aiPaddle.style.top = Math.min(240, aiY + 3) + 'px';
+                
+                // Paddle collision
+                const playerY = parseFloat(playerPaddle.style.top);
+                const newAiY = parseFloat(aiPaddle.style.top);
+                
+                if (ballX <= 30 && ballY >= playerY && ballY <= playerY + 60) {
+                    ballVX = Math.abs(ballVX) * 1.05;
+                    ballVY += (Math.random() - 0.5) * 2;
+                }
+                
+                if (ballX >= 355 && ballY >= newAiY && ballY <= newAiY + 60) {
+                    ballVX = -Math.abs(ballVX) * 1.05;
+                    ballVY += (Math.random() - 0.5) * 2;
+                }
+                
+                // Scoring
+                if (ballX < 0) {
+                    aiScore++;
+                    resetBall();
+                }
+                if (ballX > 400) {
+                    playerScore++;
+                    resetBall();
+                }
+                
+                ball.style.left = ballX + 'px';
+                ball.style.top = ballY + 'px';
+                
+                document.getElementById('pongScore').textContent = `You: ${playerScore} | AI: ${aiScore}`;
+                
+                if (playerScore >= 5 || aiScore >= 5) {
+                    endGame();
+                    return;
+                }
+                
+                animFrame = requestAnimationFrame(update);
+            }
+            
+            function resetBall() {
+                ballX = 192;
+                ballY = 142;
+                ballVX = (Math.random() > 0.5 ? 3 : -3);
+                ballVY = (Math.random() - 0.5) * 4;
+            }
+            
+            function endGame() {
+                gameRunning = false;
+                const reward = playerScore * 30;
+                gameState.ore += reward;
+                gameState.totalMined += reward;
+                updateDisplays();
+                saveGame();
+                document.getElementById('pongScore').textContent = `${playerScore >= 5 ? 'You Win!' : 'AI Wins!'} +${reward} ore!`;
+            }
+            
+            update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                cancelAnimationFrame(animFrame);
+                game.removeEventListener('mousemove', handleMove);
+            };
+        }
+
+        // Breakout Game
+        function breakoutGame(title, area) {
+            title.textContent = '🧱 Ore Breaker';
+            area.innerHTML = `
+                <p>Move mouse to control paddle!</p>
+                <div class="breakout-game" id="breakoutGame">
+                    <div class="breakout-paddle" id="breakoutPaddle" style="left:160px;"></div>
+                    <div class="breakout-ball" id="breakoutBall" style="left:194px;top:350px;"></div>
+                </div>
+                <p class="game-score" id="breakoutScore">Bricks: 0</p>
+            `;
+            
+            const game = document.getElementById('breakoutGame');
+            const paddle = document.getElementById('breakoutPaddle');
+            const ball = document.getElementById('breakoutBall');
+            
+            let ballX = 194, ballY = 350;
+            let ballVX = 3, ballVY = -3;
+            let bricksDestroyed = 0;
+            let gameRunning = true;
+            let bricks = [];
+            let animFrame;
+            
+            // Create bricks
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'];
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const brick = document.createElement('div');
+                    brick.className = 'breakout-brick';
+                    brick.style.cssText = `left:${col * 50 + 2}px;top:${row * 25 + 10}px;background:${colors[row]};`;
+                    game.appendChild(brick);
+                    bricks.push(brick);
+                }
+            }
+            
+            function handleMove(e) {
+                const rect = game.getBoundingClientRect();
+                const x = Math.max(0, Math.min(320, e.clientX - rect.left - 40));
+                paddle.style.left = x + 'px';
+            }
+            
+            game.addEventListener('mousemove', handleMove);
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                ballX += ballVX;
+                ballY += ballVY;
+                
+                // Wall bounce
+                if (ballX <= 0 || ballX >= 388) ballVX = -ballVX;
+                if (ballY <= 0) ballVY = -ballVY;
+                
+                // Paddle bounce
+                const paddleX = parseFloat(paddle.style.left);
+                if (ballY >= 365 && ballX >= paddleX && ballX <= paddleX + 80) {
+                    ballVY = -Math.abs(ballVY);
+                    ballVX += (ballX - paddleX - 40) / 20;
+                }
+                
+                // Ball lost
+                if (ballY > 400) {
+                    endGame();
+                    return;
+                }
+                
+                // Brick collision
+                bricks.forEach((brick, i) => {
+                    if (!brick.parentElement) return;
+                    
+                    const brickX = parseFloat(brick.style.left);
+                    const brickY = parseFloat(brick.style.top);
+                    
+                    if (ballX >= brickX && ballX <= brickX + 45 &&
+                        ballY >= brickY && ballY <= brickY + 20) {
+                        brick.remove();
+                        bricksDestroyed++;
+                        ballVY = -ballVY;
+                        document.getElementById('breakoutScore').textContent = `Bricks: ${bricksDestroyed}`;
+                    }
+                });
+                
+                ball.style.left = ballX + 'px';
+                ball.style.top = ballY + 'px';
+                
+                if (bricksDestroyed >= 40) {
+                    endGame();
+                    return;
+                }
+                
+                animFrame = requestAnimationFrame(update);
+            }
+            
+            function endGame() {
+                gameRunning = false;
+                const reward = bricksDestroyed * 5;
+                gameState.ore += reward;
+                gameState.totalMined += reward;
+                updateDisplays();
+                saveGame();
+                document.getElementById('breakoutScore').textContent = `${bricksDestroyed >= 40 ? 'You Win!' : 'Game Over!'} +${reward} ore!`;
+            }
+            
+            update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                cancelAnimationFrame(animFrame);
+                game.removeEventListener('mousemove', handleMove);
+            };
+        }
+
+        // Typing Game
+        function typingGame(title, area) {
+            title.textContent = '⌨️ Type Rush';
+            area.innerHTML = `
+                <p>Type the word as fast as you can!</p>
+                <div class="typing-word" id="typingWord"></div>
+                <input type="text" class="typing-input" id="typingInput" autofocus>
+                <p class="game-score" id="typingScore">Words: 0</p>
+                <p class="game-timer" id="typingTimer">30.0s</p>
+            `;
+            
+            const words = ['ore', 'mine', 'diamond', 'click', 'air', 'rock', 'gem', 'gold', 'silver', 'crystal', 'pickaxe', 'tunnel', 'cave', 'deep', 'shine'];
+            const wordEl = document.getElementById('typingWord');
+            const input = document.getElementById('typingInput');
+            let wordsTyped = 0;
+            let timeLeft = 30;
+            let gameRunning = true;
+            
+            function newWord() {
+                wordEl.textContent = words[Math.floor(Math.random() * words.length)];
+                input.value = '';
+            }
+            
+            function handleInput() {
+                if (!gameRunning) return;
+                if (input.value.toLowerCase() === wordEl.textContent.toLowerCase()) {
+                    wordsTyped++;
+                    document.getElementById('typingScore').textContent = `Words: ${wordsTyped}`;
+                    newWord();
+                }
+            }
+            
+            input.addEventListener('input', handleInput);
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('typingTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = wordsTyped * 50;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('typingTimer').textContent = `Done! +${reward} ore!`;
+                    input.disabled = true;
+                }
+            }, 100);
+            
+            newWord();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+                input.removeEventListener('input', handleInput);
+            };
+        }
+
+        // Color Match Game
+        function colorMatchGame(title, area) {
+            title.textContent = '🎨 Color Chaos';
+            area.innerHTML = `
+                <p>Click the button that matches the TEXT COLOR!</p>
+                <div class="color-display" id="colorDisplay">RED</div>
+                <div class="color-buttons" id="colorButtons"></div>
+                <p class="game-score" id="colorScore">Correct: 0</p>
+                <p class="game-timer" id="colorTimer">20.0s</p>
+            `;
+            
+            const colors = [
+                { name: 'RED', hex: '#ff4444' },
+                { name: 'BLUE', hex: '#4444ff' },
+                { name: 'GREEN', hex: '#44ff44' },
+                { name: 'YELLOW', hex: '#ffff00' },
+                { name: 'PINK', hex: '#ff44ff' }
+            ];
+            
+            const display = document.getElementById('colorDisplay');
+            const buttons = document.getElementById('colorButtons');
+            let correct = 0;
+            let timeLeft = 20;
+            let gameRunning = true;
+            let currentTextColor;
+            
+            // Create buttons
+            colors.forEach(color => {
+                const btn = document.createElement('button');
+                btn.className = 'color-btn';
+                btn.textContent = color.name;
+                btn.style.background = color.hex;
+                btn.style.color = color.hex === '#ffff00' ? 'black' : 'white';
+                btn.addEventListener('click', () => checkAnswer(color.name));
+                buttons.appendChild(btn);
             });
+            
+            function newRound() {
+                const textColor = colors[Math.floor(Math.random() * colors.length)];
+                const displayWord = colors[Math.floor(Math.random() * colors.length)];
+                
+                currentTextColor = textColor.name;
+                display.textContent = displayWord.name;
+                display.style.color = textColor.hex;
+                display.style.background = 'var(--bg-tertiary)';
+            }
+            
+            function checkAnswer(answer) {
+                if (!gameRunning) return;
+                if (answer === currentTextColor) {
+                    correct++;
+                    document.getElementById('colorScore').textContent = `Correct: ${correct}`;
+                }
+                newRound();
+            }
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('colorTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = correct * 40;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('colorTimer').textContent = `Done! +${reward} ore!`;
+                }
+            }, 100);
+            
+            newRound();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+            };
+        }
+
+        // Aim Trainer
+        function aimGame(title, area) {
+            title.textContent = '🎯 Aim Trainer';
+            area.innerHTML = `
+                <p>Click the targets as fast as you can!</p>
+                <div class="aim-game" id="aimGame"></div>
+                <p class="game-score" id="aimScore">Hits: 0</p>
+                <p class="game-timer" id="aimTimer">20.0s</p>
+            `;
+            
+            const game = document.getElementById('aimGame');
+            let hits = 0;
+            let timeLeft = 20;
+            let gameRunning = true;
+            
+            function spawnTarget() {
+                if (!gameRunning) return;
+                
+                const target = document.createElement('div');
+                target.className = 'aim-target';
+                target.style.left = Math.random() * 350 + 'px';
+                target.style.top = Math.random() * 350 + 'px';
+                
+                target.addEventListener('click', () => {
+                    if (!gameRunning) return;
+                    hits++;
+                    document.getElementById('aimScore').textContent = `Hits: ${hits}`;
+                    target.remove();
+                    spawnTarget();
+                });
+                
+                game.appendChild(target);
+            }
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('aimTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = hits * 15;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('aimTimer').textContent = `Done! +${reward} ore!`;
+                }
+            }, 100);
+            
+            spawnTarget();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+            };
+        }
+
+        // 2048 Game
+        function game2048(title, area) {
+            title.textContent = '🔢 2048 Ore';
+            area.innerHTML = `
+                <p>Use arrow keys to combine tiles!</p>
+                <div class="game-2048" id="game2048"></div>
+                <p class="game-score" id="2048Score">Score: 0</p>
+            `;
+            
+            const game = document.getElementById('game2048');
+            let grid = Array(16).fill(0);
+            let score = 0;
+            let gameRunning = true;
+            
+            const tileColors = {
+                0: '#1a1a25',
+                2: '#eee4da',
+                4: '#ede0c8',
+                8: '#f2b179',
+                16: '#f59563',
+                32: '#f67c5f',
+                64: '#f65e3b',
+                128: '#edcf72',
+                256: '#edcc61',
+                512: '#edc850',
+                1024: '#edc53f',
+                2048: '#edc22e'
+            };
+            
+            function addTile() {
+                const empty = grid.map((v, i) => v === 0 ? i : -1).filter(i => i !== -1);
+                if (empty.length === 0) return;
+                const idx = empty[Math.floor(Math.random() * empty.length)];
+                grid[idx] = Math.random() < 0.9 ? 2 : 4;
+            }
+            
+            function draw() {
+                game.innerHTML = '';
+                grid.forEach((val, i) => {
+                    const tile = document.createElement('div');
+                    tile.className = 'tile-2048';
+                    tile.textContent = val || '';
+                    tile.style.background = tileColors[val] || '#3c3a32';
+                    tile.style.color = val > 4 ? 'white' : '#776e65';
+                    game.appendChild(tile);
+                });
+            }
+            
+            function slide(row) {
+                let arr = row.filter(v => v);
+                for (let i = 0; i < arr.length - 1; i++) {
+                    if (arr[i] === arr[i + 1]) {
+                        arr[i] *= 2;
+                        score += arr[i];
+                        arr.splice(i + 1, 1);
+                    }
+                }
+                while (arr.length < 4) arr.push(0);
+                return arr;
+            }
+            
+            function move(direction) {
+                let moved = false;
+                let newGrid = [...grid];
+                
+                if (direction === 'left' || direction === 'right') {
+                    for (let r = 0; r < 4; r++) {
+                        let row = grid.slice(r * 4, r * 4 + 4);
+                        if (direction === 'right') row.reverse();
+                        row = slide(row);
+                        if (direction === 'right') row.reverse();
+                        for (let c = 0; c < 4; c++) {
+                            if (newGrid[r * 4 + c] !== row[c]) moved = true;
+                            newGrid[r * 4 + c] = row[c];
+                        }
+                    }
+                } else {
+                    for (let c = 0; c < 4; c++) {
+                        let col = [grid[c], grid[c + 4], grid[c + 8], grid[c + 12]];
+                        if (direction === 'down') col.reverse();
+                        col = slide(col);
+                        if (direction === 'down') col.reverse();
+                        if (newGrid[c] !== col[0] || newGrid[c + 4] !== col[1] ||
+                            newGrid[c + 8] !== col[2] || newGrid[c + 12] !== col[3]) moved = true;
+                        newGrid[c] = col[0];
+                        newGrid[c + 4] = col[1];
+                        newGrid[c + 8] = col[2];
+                        newGrid[c + 12] = col[3];
+                    }
+                }
+                
+                grid = newGrid;
+                if (moved) {
+                    addTile();
+                    draw();
+                    document.getElementById('2048Score').textContent = `Score: ${score}`;
+                    
+                    // Check for 2048
+                    if (grid.includes(2048)) {
+                        gameRunning = false;
+                        gameState.diamondOre += 3;
+                        gameState.ore += score;
+                        gameState.totalMined += score;
+                        updateDisplays();
+                        saveGame();
+                        showToast('🎉 You reached 2048! +3 Diamonds!');
+                        document.getElementById('2048Score').textContent = `You Win! +${score} ore +3 💠!`;
+                    }
+                }
+            }
+            
+            function handleKeydown(e) {
+                if (!gameRunning) return;
+                
+                const keyMap = {
+                    'ArrowLeft': 'left',
+                    'ArrowRight': 'right',
+                    'ArrowUp': 'up',
+                    'ArrowDown': 'down'
+                };
+                
+                if (keyMap[e.key]) {
+                    e.preventDefault();
+                    move(keyMap[e.key]);
+                }
+            }
+            
+            document.addEventListener('keydown', handleKeydown);
+            
+            addTile();
+            addTile();
+            draw();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                document.removeEventListener('keydown', handleKeydown);
+            };
         }
 
         // Endgame
@@ -2639,7 +4393,7 @@
                     document.getElementById('unlimitedBadge').style.display = 'inline-block';
                     document.getElementById('chatCost').textContent = '✨ UNLIMITED - Chat for free forever! ✨';
                     document.getElementById('chatSend').textContent = 'Send (FREE!)';
-                    showToast('🤖 Unlimited AI Unlocked! Chat freely!');
+                    showToast('🤖 Unlimited AI Unlocked!');
                 } else {
                     gameState.infinityMine = true;
                     document.getElementById('infinityIndicator').style.display = 'block';
@@ -2677,6 +4431,7 @@
             "Mining difficulty: Yes",
             "Blockchain? More like airchain",
             "This game runs on hopes and dreams",
+            "Try typing the cheat code 👀",
         ];
 
         function showJoke() {
@@ -2701,7 +4456,7 @@
 
         console.log('%c💨 AIR ORE 💨', 'font-size: 30px; color: #00f5ff; text-shadow: 0 0 10px #00f5ff;');
         console.log('%cMining air since 2026™', 'font-size: 14px; color: #888;');
-        console.log('%cYes, you found the console. No, there are no cheats here. Or are there? 👀', 'font-size: 12px; color: #ff00ff;');
+        console.log('%cPsst... try typing "iamadirtycheater" 🤫', 'font-size: 12px; color: #ff00ff;');
     </script>
 </body>
 </html>

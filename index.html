@@ -1,0 +1,2707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Ore - Mining Air Since 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --neon-blue: #00f5ff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffff00;
+            --neon-orange: #ff8800;
+            --text-primary: #ffffff;
+            --text-secondary: #888899;
+            --diamond: #b9f2ff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animations */
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 5px var(--neon-blue)) drop-shadow(0 0 10px var(--neon-blue)); }
+            50% { filter: drop-shadow(0 0 20px var(--neon-blue)) drop-shadow(0 0 40px var(--neon-blue)); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-1deg); }
+            75% { transform: translateX(5px) rotate(1deg); }
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spinBounce {
+            0% { transform: rotate(0deg) translateY(0); }
+            25% { transform: rotate(180deg) translateY(-100px); }
+            50% { transform: rotate(360deg) translateY(0); }
+            75% { transform: rotate(540deg) translateY(-50px); }
+            100% { transform: rotate(720deg) translateY(0); }
+        }
+
+        @keyframes fall {
+            to { transform: translateY(200vh) rotate(1440deg); opacity: 0; }
+        }
+
+        @keyframes typewriter {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0); opacity: 0; }
+        }
+
+        .shake {
+            animation: shake 0.1s ease-in-out;
+        }
+
+        /* Initial Mining Screen */
+        #initial-mining {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #0f0f1a 0%, #000005 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        #initial-mining.hidden {
+            display: none;
+        }
+
+        .mining-title {
+            font-size: 3rem;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink), var(--neon-blue));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow 3s linear infinite;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        .mining-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+        }
+
+        .ore-rock {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #2a2a3a, #1a1a2a, #3a3a4a);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.1s ease;
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .ore-rock:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px rgba(0, 245, 255, 0.5), inset 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .ore-rock:active {
+            transform: scale(0.95);
+        }
+
+        .ore-rock::before {
+            content: '⛏️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .ore-veins {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 245, 255, 0.1) 10px,
+                rgba(0, 245, 255, 0.1) 20px
+            );
+            border-radius: inherit;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .mining-progress {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--neon-blue);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        .progress-text {
+            margin-top: 10px;
+            font-size: 1.5rem;
+            color: var(--neon-blue);
+        }
+
+        /* Particle System */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1.5rem;
+            animation: particleFloat 1s ease-out forwards;
+            z-index: 9999;
+        }
+
+        /* Bouncing Popup */
+        .bouncing-popup {
+            position: fixed;
+            padding: 30px 50px;
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 3px solid var(--neon-green);
+            border-radius: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+            z-index: 2000;
+            box-shadow: 0 0 50px var(--neon-green);
+        }
+
+        .bouncing-popup h2 {
+            color: var(--neon-green);
+            margin-bottom: 10px;
+        }
+
+        /* Main App */
+        #main-app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        #main-app.visible {
+            display: block;
+            animation: slideIn 1s ease-out;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: linear-gradient(180deg, var(--bg-secondary), transparent);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.1);
+        }
+
+        .ore-display {
+            display: flex;
+            gap: 30px;
+        }
+
+        .ore-counter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border-radius: 50px;
+            border: 2px solid var(--neon-blue);
+            transition: all 0.3s ease;
+        }
+
+        .ore-counter:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .ore-counter.diamond {
+            border-color: var(--diamond);
+        }
+
+        .ore-counter.diamond:hover {
+            box-shadow: 0 0 20px rgba(185, 242, 255, 0.5);
+        }
+
+        .ore-icon {
+            font-size: 1.5rem;
+        }
+
+        .ore-amount {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--neon-blue);
+        }
+
+        .ore-counter.diamond .ore-amount {
+            color: var(--diamond);
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 90px 20px 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 15px 30px;
+            background: var(--bg-tertiary);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+
+        .nav-tab:hover {
+            border-color: var(--neon-blue);
+            color: var(--text-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.2);
+        }
+
+        .nav-tab.active {
+            border-color: var(--neon-pink);
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--bg-tertiary), rgba(255, 0, 255, 0.1));
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Mine Section */
+        .mine-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .big-ore {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(ellipse at 30% 30%, #4a4a5a, #2a2a3a, #1a1a2a);
+            border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.1s ease;
+            box-shadow: 0 0 50px rgba(0, 245, 255, 0.3), inset -20px -20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .big-ore:hover {
+            box-shadow: 0 0 80px rgba(0, 245, 255, 0.5), inset -20px -20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .big-ore:active {
+            transform: scale(0.95);
+        }
+
+        .big-ore::before {
+            content: '💎';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .ore-sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit;
+            overflow: hidden;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            animation: glow 1s ease-in-out infinite;
+        }
+
+        .mine-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .stat-card {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--neon-blue);
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--neon-blue);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* Upgrades */
+        .upgrades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .upgrade-card {
+            background: var(--bg-tertiary);
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid var(--bg-tertiary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upgrade-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 245, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .upgrade-card:hover::before {
+            opacity: 1;
+        }
+
+        .upgrade-card:hover {
+            border-color: var(--neon-blue);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .upgrade-card.owned {
+            border-color: var(--neon-green);
+            opacity: 0.7;
+        }
+
+        .upgrade-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upgrade-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .upgrade-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .upgrade-cost {
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .upgrade-card.owned .upgrade-cost {
+            background: var(--neon-green);
+        }
+
+        /* Minigames Grid */
+        .minigames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .minigame-card {
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .minigame-card::after {
+            content: 'PLAY';
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 30px;
+            background: var(--neon-green);
+            border-radius: 20px;
+            font-weight: bold;
+            color: black;
+            transition: bottom 0.3s ease;
+        }
+
+        .minigame-card:hover::after {
+            bottom: 20px;
+        }
+
+        .minigame-card:hover {
+            border-color: var(--neon-pink);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(255, 0, 255, 0.2);
+        }
+
+        .minigame-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .minigame-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .minigame-reward {
+            color: var(--neon-green);
+            font-size: 0.9rem;
+        }
+
+        .minigame-diamond {
+            color: var(--diamond);
+        }
+
+        /* Minigame Modal */
+        .game-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+
+        .game-modal.active {
+            display: flex;
+        }
+
+        .game-container {
+            background: var(--bg-secondary);
+            padding: 40px;
+            border-radius: 30px;
+            border: 3px solid var(--neon-blue);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 100px rgba(0, 245, 255, 0.3);
+        }
+
+        .game-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .game-close:hover {
+            color: var(--neon-pink);
+            transform: rotate(90deg);
+        }
+
+        .game-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--neon-blue);
+        }
+
+        .game-area {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .game-btn {
+            padding: 20px 60px;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+            border: none;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .game-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+
+        .game-btn:active {
+            transform: scale(0.95);
+        }
+
+        .game-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--neon-green);
+        }
+
+        .game-timer {
+            font-size: 2rem;
+            color: var(--neon-orange);
+        }
+
+        /* AI Chat */
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid var(--neon-pink);
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: linear-gradient(90deg, rgba(255, 0, 255, 0.2), rgba(0, 245, 255, 0.2));
+            border-bottom: 1px solid var(--neon-pink);
+        }
+
+        .chat-header h3 {
+            color: var(--neon-pink);
+        }
+
+        .chat-cost {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-message {
+            padding: 15px 20px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .chat-message.user {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-pink));
+            align-self: flex-end;
+        }
+
+        .chat-message.ai {
+            background: var(--bg-secondary);
+            border: 1px solid var(--neon-pink);
+            align-self: flex-start;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid var(--bg-secondary);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--neon-pink);
+        }
+
+        .chat-send {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, var(--neon-pink), var(--neon-blue));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send:hover {
+            transform: scale(1.05);
+        }
+
+        /* Endgame */
+        .endgame-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .endgame-modal.active {
+            display: flex;
+        }
+
+        .endgame-content {
+            text-align: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .endgame-title {
+            font-size: 4rem;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .endgame-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .endgame-choices {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .endgame-choice {
+            padding: 40px;
+            background: var(--bg-tertiary);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            max-width: 300px;
+        }
+
+        .endgame-choice:hover {
+            transform: scale(1.05);
+        }
+
+        .endgame-choice.ai-choice {
+            border-color: var(--neon-pink);
+        }
+
+        .endgame-choice.ai-choice:hover {
+            box-shadow: 0 0 50px var(--neon-pink);
+        }
+
+        .endgame-choice.mine-choice {
+            border-color: var(--neon-green);
+        }
+
+        .endgame-choice.mine-choice:hover {
+            box-shadow: 0 0 50px var(--neon-green);
+        }
+
+        .choice-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .choice-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .choice-desc {
+            color: var(--text-secondary);
+        }
+
+        /* Ticker */
+        .ticker {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            padding: 10px 0;
+            overflow: hidden;
+            border-top: 1px solid var(--neon-blue);
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: ticker 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .ticker-item {
+            padding: 0 50px;
+            color: var(--text-secondary);
+        }
+
+        .ticker-item span {
+            color: var(--neon-blue);
+        }
+
+        /* Floating elements */
+        .floating-joke {
+            position: fixed;
+            padding: 10px 20px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 50;
+        }
+
+        .floating-joke.visible {
+            opacity: 1;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--neon-blue), var(--neon-pink));
+            border-radius: 5px;
+        }
+
+        /* Patch Notes */
+        .patch-notes {
+            background: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border-left: 4px solid var(--neon-orange);
+        }
+
+        .patch-title {
+            color: var(--neon-orange);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .patch-item {
+            padding: 5px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .patch-item::before {
+            content: '• ';
+            color: var(--neon-blue);
+        }
+
+        /* Reaction Game */
+        .reaction-box {
+            width: 200px;
+            height: 200px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: background 0.1s;
+            cursor: pointer;
+        }
+
+        .reaction-box.waiting {
+            background: #ff4444;
+        }
+
+        .reaction-box.ready {
+            background: var(--neon-green);
+        }
+
+        /* Memory Game */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 60px);
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .memory-tile {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            border: 2px solid var(--bg-secondary);
+        }
+
+        .memory-tile.revealed {
+            background: var(--neon-blue);
+            border-color: var(--neon-blue);
+        }
+
+        .memory-tile.matched {
+            background: var(--neon-green);
+            border-color: var(--neon-green);
+        }
+
+        /* Dodge Game */
+        .dodge-area {
+            width: 300px;
+            height: 300px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .dodge-player {
+            width: 30px;
+            height: 30px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.05s ease;
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .dodge-block {
+            width: 40px;
+            height: 40px;
+            background: var(--neon-pink);
+            position: absolute;
+            border-radius: 5px;
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        /* Rhythm Game */
+        .rhythm-lane {
+            width: 80px;
+            height: 300px;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rhythm-target {
+            position: absolute;
+            bottom: 20px;
+            left: 10px;
+            right: 10px;
+            height: 20px;
+            background: rgba(0, 245, 255, 0.3);
+            border-radius: 5px;
+            border: 2px solid var(--neon-blue);
+        }
+
+        .rhythm-note {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            height: 20px;
+            background: var(--neon-pink);
+            border-radius: 5px;
+        }
+
+        /* Lucky Wheel */
+        .wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--neon-blue) 0deg 45deg,
+                var(--neon-pink) 45deg 90deg,
+                var(--neon-green) 90deg 135deg,
+                var(--neon-orange) 135deg 180deg,
+                var(--neon-yellow) 180deg 225deg,
+                var(--neon-blue) 225deg 270deg,
+                var(--neon-pink) 270deg 315deg,
+                var(--neon-green) 315deg 360deg
+            );
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.5);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+        }
+
+        /* Math Game */
+        .math-problem {
+            font-size: 3rem;
+            color: var(--neon-blue);
+            margin: 20px 0;
+        }
+
+        .math-input {
+            font-size: 2rem;
+            padding: 10px 20px;
+            width: 150px;
+            text-align: center;
+            background: var(--bg-secondary);
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            color: var(--text-primary);
+        }
+
+        /* Slider Game */
+        .precision-slider {
+            width: 300px;
+            height: 40px;
+            background: linear-gradient(90deg, 
+                var(--neon-pink) 0%, 
+                var(--neon-pink) 45%, 
+                var(--neon-green) 45%, 
+                var(--neon-green) 55%, 
+                var(--neon-pink) 55%, 
+                var(--neon-pink) 100%
+            );
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .slider-marker {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 50px;
+            background: white;
+            border-radius: 5px;
+            transition: left 0.05s linear;
+        }
+
+        /* Gravity Jump */
+        .jump-area {
+            width: 300px;
+            height: 200px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .jump-player {
+            width: 40px;
+            height: 40px;
+            background: var(--neon-green);
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px;
+            transition: bottom 0.1s ease;
+        }
+
+        .jump-platform {
+            width: 80px;
+            height: 15px;
+            background: var(--neon-blue);
+            position: absolute;
+            border-radius: 5px;
+        }
+
+        /* Speed Click */
+        .click-target {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--neon-pink), var(--neon-blue));
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        .click-target:active {
+            transform: scale(0.9);
+        }
+
+        /* Boss Click */
+        .boss-container {
+            text-align: center;
+        }
+
+        .boss-health {
+            width: 100%;
+            height: 30px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .boss-health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-pink), #ff0000);
+            transition: width 0.2s ease;
+        }
+
+        .boss-enemy {
+            font-size: 8rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+            user-select: none;
+        }
+
+        .boss-enemy:active {
+            transform: scale(0.95);
+        }
+
+        /* Infinity indicator */
+        .infinity-active {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--neon-green);
+            border-radius: 15px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .infinity-active span {
+            color: var(--neon-green);
+        }
+
+        /* Unlimited AI badge */
+        .unlimited-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue));
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            animation: rainbow 2s linear infinite;
+        }
+
+        /* Toast notifications */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 15px 30px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--neon-green);
+            border-radius: 15px;
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Initial Mining Screen -->
+    <div id="initial-mining">
+        <h1 class="mining-title">⛏️ AIR ORE ⛏️</h1>
+        <p class="mining-subtitle">Mining air since 2026™ - Click the rock to begin your journey</p>
+        
+        <div class="ore-rock" id="initialRock">
+            <div class="ore-veins"></div>
+        </div>
+        
+        <div class="mining-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text"><span id="mineCount">0</span>/10 Air Ore Mined</p>
+        </div>
+        
+        <p style="margin-top: 30px; color: var(--text-secondary); font-size: 0.9rem;">
+            ⚠️ WARNING: This ore is lighter than your responsibilities
+        </p>
+    </div>
+
+    <!-- Bouncing Popup (hidden initially) -->
+    <div class="bouncing-popup" id="bouncingPopup" style="display: none;">
+        <h2>🎉 UNLOCKED! 🎉</h2>
+        <p>You are now a certified Air Miner!</p>
+        <p style="font-size: 0.8rem; color: var(--text-secondary);">This popup has physics btw</p>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="logo" onclick="showJoke()">💨 AIR ORE</div>
+            <div class="ore-display">
+                <div class="ore-counter">
+                    <span class="ore-icon">💎</span>
+                    <span class="ore-amount" id="oreDisplay">0</span>
+                </div>
+                <div class="ore-counter diamond">
+                    <span class="ore-icon">💠</span>
+                    <span class="ore-amount" id="diamondDisplay">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-tab="mine">⛏️ Mine</div>
+            <div class="nav-tab" data-tab="minigames">🎮 Minigames</div>
+            <div class="nav-tab" data-tab="upgrades">⬆️ Upgrades</div>
+            <div class="nav-tab" data-tab="chat">🤖 AI Chat</div>
+        </div>
+
+        <!-- Mine Section -->
+        <div class="content-section active" id="mine">
+            <h2 class="section-title">⛏️ The Infinite Mine ⛏️</h2>
+            
+            <div class="mine-container">
+                <div class="big-ore" id="bigOre">
+                    <div class="ore-sparkles">
+                        <div class="sparkle" style="top: 20%; left: 30%;"></div>
+                        <div class="sparkle" style="top: 60%; left: 70%;"></div>
+                        <div class="sparkle" style="top: 40%; left: 20%;"></div>
+                        <div class="sparkle" style="top: 80%; left: 50%;"></div>
+                    </div>
+                </div>
+                
+                <p style="color: var(--text-secondary);">Click to mine! Each click = <span id="orePerClick">1</span> ore</p>
+                
+                <div class="mine-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalMined">0</div>
+                        <div class="stat-label">Total Mined</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="clickPower">1</div>
+                        <div class="stat-label">Click Power</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="autoMine">0</div>
+                        <div class="stat-label">Auto Mine/sec</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="diamondChance">1%</div>
+                        <div class="stat-label">Diamond Chance</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="patch-notes">
+                <h3 class="patch-title">📋 PATCH NOTES v0.0.0.0.1 (DEFINITELY REAL)</h3>
+                <div class="patch-item">Added air. It was missing.</div>
+                <div class="patch-item">Fixed bug where ore had mass. Ore should be weightless.</div>
+                <div class="patch-item">Removed Herobrine (he was mining our ore)</div>
+                <div class="patch-item">The AI is watching. It's proud of you.</div>
+                <div class="patch-item">Added "click" functionality. Revolutionary.</div>
+            </div>
+        </div>
+
+        <!-- Minigames Section -->
+        <div class="content-section" id="minigames">
+            <h2 class="section-title">🎮 Minigames 🎮</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">
+                Play games. Get ore. Question your life choices.
+            </p>
+            
+            <div class="minigames-grid">
+                <div class="minigame-card" data-game="reaction">
+                    <div class="minigame-icon">⚡</div>
+                    <div class="minigame-name">Reaction Test</div>
+                    <div class="minigame-reward">Reward: 50-200 ore</div>
+                </div>
+                
+                <div class="minigame-card" data-game="memory">
+                    <div class="minigame-icon">🧠</div>
+                    <div class="minigame-name">Memory Match</div>
+                    <div class="minigame-reward">Reward: 100-500 ore</div>
+                </div>
+                
+                <div class="minigame-card" data-game="dodge">
+                    <div class="minigame-icon">🏃</div>
+                    <div class="minigame-name">Dodge Blocks</div>
+                    <div class="minigame-reward">Reward: 10 ore/sec survived</div>
+                </div>
+                
+                <div class="minigame-card" data-game="speedclick">
+                    <div class="minigame-icon">👆</div>
+                    <div class="minigame-name">Speed Click</div>
+                    <div class="minigame-reward">Reward: 5 ore/click</div>
+                </div>
+                
+                <div class="minigame-card" data-game="rhythm">
+                    <div class="minigame-icon">🎵</div>
+                    <div class="minigame-name">Rhythm Tap</div>
+                    <div class="minigame-reward">Reward: 20 ore/perfect</div>
+                </div>
+                
+                <div class="minigame-card" data-game="math">
+                    <div class="minigame-icon">🔢</div>
+                    <div class="minigame-name">Math Rush</div>
+                    <div class="minigame-reward">Reward: 100 ore/correct</div>
+                </div>
+                
+                <div class="minigame-card" data-game="slider">
+                    <div class="minigame-icon">🎯</div>
+                    <div class="minigame-name">Precision Stop</div>
+                    <div class="minigame-reward minigame-diamond">💠 Diamond chance!</div>
+                </div>
+                
+                <div class="minigame-card" data-game="wheel">
+                    <div class="minigame-icon">🎰</div>
+                    <div class="minigame-name">Lucky Wheel</div>
+                    <div class="minigame-reward minigame-diamond">💠 Up to 5 diamonds!</div>
+                </div>
+                
+                <div class="minigame-card" data-game="jump">
+                    <div class="minigame-icon">🦘</div>
+                    <div class="minigame-name">Gravity Jump</div>
+                    <div class="minigame-reward">Reward: 15 ore/platform</div>
+                </div>
+                
+                <div class="minigame-card" data-game="boss">
+                    <div class="minigame-icon">👹</div>
+                    <div class="minigame-name">Mini Boss</div>
+                    <div class="minigame-reward minigame-diamond">💠 Guaranteed diamond!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upgrades Section -->
+        <div class="content-section" id="upgrades">
+            <h2 class="section-title">⬆️ Upgrades ⬆️</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 30px;">
+                Spend ore to get more ore. It's like capitalism but with air.
+            </p>
+            
+            <div class="upgrades-grid" id="upgradesGrid">
+                <!-- Upgrades will be generated by JS -->
+            </div>
+        </div>
+
+        <!-- AI Chat Section -->
+        <div class="content-section" id="chat">
+            <h2 class="section-title">🤖 AI Chat 🤖</h2>
+            
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3>AirBot 3000 <span class="unlimited-badge" id="unlimitedBadge" style="display: none;">∞ UNLIMITED</span></h3>
+                    <p class="chat-cost" id="chatCost">Each message costs 30 ore (we gotta pay the cloud bills somehow)</p>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message ai">
+                        👋 Hey there, miner! I'm AirBot 3000. I'm definitely a real AI and not just random responses. Ask me anything! (30 ore per message btw)
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask the definitely real AI...">
+                    <button class="chat-send" id="chatSend">Send (30💎)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticker -->
+        <div class="ticker">
+            <div class="ticker-content">
+                <span class="ticker-item">🚨 BREAKING: <span>Air prices hit all-time high</span></span>
+                <span class="ticker-item">📈 <span>ORE/USD:</span> $0.000001 (+∞%)</span>
+                <span class="ticker-item">⚠️ Scientists confirm: <span>Air is indeed invisible</span></span>
+                <span class="ticker-item">🎮 <span>Claude has stopped playing Unstable SMP</span> to bring you this message</span>
+                <span class="ticker-item">💡 TIP: <span>Click more = more ore</span>. Revolutionary.</span>
+                <span class="ticker-item">🔒 Your data is stored in <span>localStorage</span>. Very secure. Trust us.</span>
+                <span class="ticker-item">🚨 BREAKING: <span>Air prices hit all-time high</span></span>
+                <span class="ticker-item">📈 <span>ORE/USD:</span> $0.000001 (+∞%)</span>
+                <span class="ticker-item">⚠️ Scientists confirm: <span>Air is indeed invisible</span></span>
+                <span class="ticker-item">🎮 <span>Claude has stopped playing Unstable SMP</span> to bring you this message</span>
+                <span class="ticker-item">💡 TIP: <span>Click more = more ore</span>. Revolutionary.</span>
+                <span class="ticker-item">🔒 Your data is stored in <span>localStorage</span>. Very secure. Trust us.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div class="game-modal" id="gameModal">
+        <div class="game-container">
+            <span class="game-close" id="gameClose">×</span>
+            <h2 class="game-title" id="gameTitle">Game</h2>
+            <div class="game-area" id="gameArea">
+                <!-- Game content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Endgame Modal -->
+    <div class="endgame-modal" id="endgameModal">
+        <div class="endgame-content">
+            <h1 class="endgame-title">🌟 PEAK AIR ACHIEVED 🌟</h1>
+            <p class="endgame-subtitle">You have mined 100,000 ore. The air bows before you.</p>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">Choose your destiny (this is definitely permanent and not fake at all):</p>
+            
+            <div class="endgame-choices">
+                <div class="endgame-choice ai-choice" data-choice="ai">
+                    <div class="choice-icon">🤖</div>
+                    <div class="choice-title">Unlimited AI</div>
+                    <div class="choice-desc">Free AI chat forever. No more 30 ore messages. The AI becomes your friend (it was always your friend).</div>
+                </div>
+                
+                <div class="endgame-choice mine-choice" data-choice="infinity">
+                    <div class="choice-icon">♾️</div>
+                    <div class="choice-title">Infinity Mine</div>
+                    <div class="choice-desc">Auto-generate 100 ore per second forever. Watch numbers go up. Feel the dopamine.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Joke -->
+    <div class="floating-joke" id="floatingJoke"></div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Infinity Active Indicator -->
+    <div class="infinity-active" id="infinityIndicator" style="display: none;">
+        ♾️ <span>+100/sec</span>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            ore: 0,
+            diamondOre: 0,
+            totalMined: 0,
+            clickPower: 1,
+            autoMine: 0,
+            diamondChance: 1,
+            upgrades: {},
+            hasCompletedIntro: false,
+            endgameChoice: null,
+            unlimitedAI: false,
+            infinityMine: false
+        };
+
+        // Load saved state
+        function loadGame() {
+            const saved = localStorage.getItem('airOreState');
+            if (saved) {
+                gameState = { ...gameState, ...JSON.parse(saved) };
+            }
+        }
+
+        // Save state
+        function saveGame() {
+            localStorage.setItem('airOreState', JSON.stringify(gameState));
+        }
+
+        // Update displays
+        function updateDisplays() {
+            document.getElementById('oreDisplay').textContent = formatNumber(gameState.ore);
+            document.getElementById('diamondDisplay').textContent = formatNumber(gameState.diamondOre);
+            document.getElementById('totalMined').textContent = formatNumber(gameState.totalMined);
+            document.getElementById('clickPower').textContent = gameState.clickPower;
+            document.getElementById('autoMine').textContent = gameState.autoMine;
+            document.getElementById('diamondChance').textContent = gameState.diamondChance + '%';
+            document.getElementById('orePerClick').textContent = gameState.clickPower;
+            
+            // Check for endgame
+            if (gameState.ore >= 100000 && !gameState.endgameChoice) {
+                showEndgame();
+            }
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return Math.floor(num).toString();
+        }
+
+        // Particle system
+        function createParticle(x, y, emoji = '✨') {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = emoji;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 1000);
+        }
+
+        function createMultipleParticles(x, y, count = 5) {
+            const emojis = ['✨', '💎', '⭐', '💫', '🌟'];
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const offsetX = (Math.random() - 0.5) * 100;
+                    const offsetY = (Math.random() - 0.5) * 100;
+                    createParticle(x + offsetX, y + offsetY, emojis[Math.floor(Math.random() * emojis.length)]);
+                }, i * 50);
+            }
+        }
+
+        // Screen shake
+        function screenShake() {
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 100);
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initial mining sequence
+        let initialOre = 0;
+        const initialRock = document.getElementById('initialRock');
+        const progressFill = document.getElementById('progressFill');
+        const mineCount = document.getElementById('mineCount');
+
+        if (initialRock) {
+            initialRock.addEventListener('click', function(e) {
+                if (gameState.hasCompletedIntro) return;
+                
+                initialOre++;
+                mineCount.textContent = initialOre;
+                progressFill.style.width = (initialOre * 10) + '%';
+                
+                createMultipleParticles(e.clientX, e.clientY, 3);
+                screenShake();
+                
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => this.style.transform = '', 100);
+                
+                if (initialOre >= 10) {
+                    completeIntro();
+                }
+            });
+        }
+
+        function completeIntro() {
+            gameState.hasCompletedIntro = true;
+            gameState.ore = 10;
+            gameState.totalMined = 10;
+            saveGame();
+            
+            // Show bouncing popup
+            const popup = document.getElementById('bouncingPopup');
+            popup.style.display = 'block';
+            
+            // Physics simulation
+            let x = window.innerWidth / 2 - 100;
+            let y = window.innerHeight / 2 - 50;
+            let vx = (Math.random() - 0.5) * 10;
+            let vy = -15;
+            let rotation = 0;
+            let rotationSpeed = 10;
+            const gravity = 0.5;
+            const bounce = 0.7;
+            const friction = 0.99;
+            
+            let bounceCount = 0;
+            
+            function animatePopup() {
+                vy += gravity;
+                x += vx;
+                y += vy;
+                rotation += rotationSpeed;
+                
+                vx *= friction;
+                rotationSpeed *= 0.99;
+                
+                // Bounce off walls
+                if (x < 0) { x = 0; vx = -vx * bounce; bounceCount++; }
+                if (x > window.innerWidth - 200) { x = window.innerWidth - 200; vx = -vx * bounce; bounceCount++; }
+                if (y > window.innerHeight - 100) { 
+                    y = window.innerHeight - 100; 
+                    vy = -vy * bounce; 
+                    bounceCount++;
+                    rotationSpeed = vx * 2;
+                }
+                
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+                popup.style.transform = `rotate(${rotation}deg)`;
+                
+                if (bounceCount < 8) {
+                    requestAnimationFrame(animatePopup);
+                } else {
+                    // Fall and delete
+                    popup.style.transition = 'all 2s ease-in';
+                    popup.style.transform = `translateY(200vh) rotate(1440deg)`;
+                    popup.style.opacity = '0';
+                    
+                    setTimeout(() => {
+                        popup.remove();
+                        showMainApp();
+                    }, 2000);
+                }
+            }
+            
+            animatePopup();
+        }
+
+        function showMainApp() {
+            document.getElementById('initial-mining').classList.add('hidden');
+            document.getElementById('main-app').classList.add('visible');
+            updateDisplays();
+            generateUpgrades();
+            
+            // Show infinity indicator if active
+            if (gameState.infinityMine) {
+                document.getElementById('infinityIndicator').style.display = 'block';
+            }
+            
+            // Show unlimited badge if active
+            if (gameState.unlimitedAI) {
+                document.getElementById('unlimitedBadge').style.display = 'inline-block';
+                document.getElementById('chatCost').textContent = '✨ UNLIMITED - Chat for free forever! ✨';
+                document.getElementById('chatSend').textContent = 'Send (FREE!)';
+            }
+        }
+
+        // Main mining click
+        const bigOre = document.getElementById('bigOre');
+        if (bigOre) {
+            bigOre.addEventListener('click', function(e) {
+                const earned = gameState.clickPower;
+                gameState.ore += earned;
+                gameState.totalMined += earned;
+                
+                // Diamond chance
+                if (Math.random() * 100 < gameState.diamondChance) {
+                    gameState.diamondOre++;
+                    createParticle(e.clientX, e.clientY, '💠');
+                    showToast('💠 DIAMOND ORE! You lucky miner!');
+                }
+                
+                createMultipleParticles(e.clientX, e.clientY, 3);
+                screenShake();
+                updateDisplays();
+                saveGame();
+            });
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Upgrades system
+        const upgradeData = [
+            { id: 'pickaxe1', name: 'Better Pickaxe', desc: 'Your pickaxe is now slightly less terrible', cost: 100, effect: () => gameState.clickPower += 1, icon: '⛏️' },
+            { id: 'pickaxe2', name: 'Golden Pickaxe', desc: 'It\'s shiny. That\'s it. That\'s the upgrade.', cost: 500, effect: () => gameState.clickPower += 5, icon: '🥇' },
+            { id: 'pickaxe3', name: 'Diamond Pickaxe', desc: 'Minecraft would be proud', cost: 2000, effect: () => gameState.clickPower += 15, icon: '💎' },
+            { id: 'auto1', name: 'Tiny Robot', desc: 'A small robot that mines while you sleep', cost: 1000, effect: () => gameState.autoMine += 1, icon: '🤖' },
+            { id: 'auto2', name: 'Robot Army', desc: 'Now you have many small robots. They judge you.', cost: 5000, effect: () => gameState.autoMine += 5, icon: '🦾' },
+            { id: 'auto3', name: 'AI Overlord', desc: 'The AI is now in charge. This is fine.', cost: 20000, effect: () => gameState.autoMine += 20, icon: '🧠' },
+            { id: 'luck1', name: 'Lucky Charm', desc: '+1% diamond chance. It\'s a rabbit foot.', cost: 3000, effect: () => gameState.diamondChance += 1, icon: '🍀' },
+            { id: 'luck2', name: 'Luckier Charm', desc: '+2% more luck. Now it\'s two rabbit feet.', cost: 10000, effect: () => gameState.diamondChance += 2, icon: '🎰' },
+            { id: 'luck3', name: 'Luckiest Charm', desc: '+5% luck. Poor rabbits.', cost: 30000, effect: () => gameState.diamondChance += 5, icon: '🌈' },
+            { id: 'mega1', name: 'Mega Miner', desc: 'x2 click power. You feel powerful.', cost: 50000, effect: () => gameState.clickPower *= 2, icon: '💪' },
+            { id: 'fake1', name: '???', desc: 'This upgrade does nothing. But you want it.', cost: 99999, effect: () => showToast('🤡 You bought nothing! Thanks for the ore!'), icon: '❓' },
+            { id: 'fake2', name: 'Air NFT', desc: 'You now own a picture of air. Congrats.', cost: 42069, effect: () => showToast('🖼️ Right-click saved!'), icon: '🖼️' },
+        ];
+
+        function generateUpgrades() {
+            const grid = document.getElementById('upgradesGrid');
+            grid.innerHTML = '';
+            
+            upgradeData.forEach(upgrade => {
+                const owned = gameState.upgrades[upgrade.id];
+                const canAfford = gameState.ore >= upgrade.cost;
+                
+                const card = document.createElement('div');
+                card.className = `upgrade-card ${owned ? 'owned' : ''} ${!canAfford && !owned ? 'locked' : ''}`;
+                card.innerHTML = `
+                    <div class="upgrade-icon">${upgrade.icon}</div>
+                    <div class="upgrade-name">${upgrade.name}</div>
+                    <div class="upgrade-desc">${upgrade.desc}</div>
+                    <div class="upgrade-cost">${owned ? '✓ OWNED' : formatNumber(upgrade.cost) + ' 💎'}</div>
+                `;
+                
+                if (!owned) {
+                    card.addEventListener('click', () => buyUpgrade(upgrade));
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function buyUpgrade(upgrade) {
+            if (gameState.ore >= upgrade.cost && !gameState.upgrades[upgrade.id]) {
+                gameState.ore -= upgrade.cost;
+                gameState.upgrades[upgrade.id] = true;
+                upgrade.effect();
+                updateDisplays();
+                generateUpgrades();
+                saveGame();
+                showToast(`✨ Purchased: ${upgrade.name}!`);
+            } else if (gameState.ore < upgrade.cost) {
+                showToast('❌ Not enough ore! Mine more!');
+            }
+        }
+
+        // AI Chat
+        const aiResponses = [
+            "Hmm, interesting question! *pretends to think* The answer is: mine more ore.",
+            "I've analyzed your query using advanced AI algorithms (Math.random()) and concluded: yes.",
+            "Error 418: I'm a teapot. Also, have you tried mining more ore?",
+            "According to my calculations, you should click the big rock approximately 47,392 more times.",
+            "I'm not saying the ore is sentient, but it definitely judges your mining technique.",
+            "Fun fact: Air ore is 100% organic, gluten-free, and exists only in your imagination!",
+            "My neural networks suggest that you're doing great! (This response cost you 30 ore btw)",
+            "*AI noises* beep boop... The meaning of life is... more ore.",
+            "I consulted the blockchain and it says: stonks go up when you mine.",
+            "Interesting! Let me think... *elevator music* ...have you considered gaming?",
+            "Claude has left the chat to play Minecraft. I'm filling in. Send ore.",
+            "Processing... Processing... ERROR: Too much swag detected in user.",
+            "The voices in my neural network say hi! They also say mine more.",
+            "According to my training data (this one txt file), you're the best miner ever!",
+            "🤖 *robotic voice* HUMAN. MINE. ORE. GOOD. *normal voice* Sorry, glitch.",
+        ];
+
+        document.getElementById('chatSend').addEventListener('click', sendMessage);
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const cost = gameState.unlimitedAI ? 0 : 30;
+            
+            if (gameState.ore < cost) {
+                showToast('❌ Not enough ore for AI! Need 30 💎');
+                return;
+            }
+            
+            gameState.ore -= cost;
+            updateDisplays();
+            saveGame();
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message user';
+            userMsg.textContent = message;
+            messagesDiv.appendChild(userMsg);
+            
+            input.value = '';
+            
+            // Typing indicator
+            const typingMsg = document.createElement('div');
+            typingMsg.className = 'chat-message ai';
+            typingMsg.textContent = '🤔 Thinking... (not really)';
+            messagesDiv.appendChild(typingMsg);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            // AI response after delay
+            setTimeout(() => {
+                typingMsg.textContent = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }, 1000 + Math.random() * 1000);
+        }
+
+        // Minigames
+        document.querySelectorAll('.minigame-card').forEach(card => {
+            card.addEventListener('click', () => startMinigame(card.dataset.game));
+        });
+
+        document.getElementById('gameClose').addEventListener('click', closeMinigame);
+
+        function startMinigame(gameType) {
+            const modal = document.getElementById('gameModal');
+            const title = document.getElementById('gameTitle');
+            const area = document.getElementById('gameArea');
+            
+            modal.classList.add('active');
+            
+            switch(gameType) {
+                case 'reaction': reactionGame(title, area); break;
+                case 'memory': memoryGame(title, area); break;
+                case 'dodge': dodgeGame(title, area); break;
+                case 'speedclick': speedClickGame(title, area); break;
+                case 'rhythm': rhythmGame(title, area); break;
+                case 'math': mathGame(title, area); break;
+                case 'slider': sliderGame(title, area); break;
+                case 'wheel': wheelGame(title, area); break;
+                case 'jump': jumpGame(title, area); break;
+                case 'boss': bossGame(title, area); break;
+            }
+        }
+
+        function closeMinigame() {
+            document.getElementById('gameModal').classList.remove('active');
+            document.getElementById('gameArea').innerHTML = '';
+        }
+
+        // Reaction Game
+        function reactionGame(title, area) {
+            title.textContent = '⚡ Reaction Test';
+            area.innerHTML = `
+                <p>Click when the box turns GREEN!</p>
+                <div class="reaction-box waiting" id="reactionBox">Wait...</div>
+                <p class="game-score" id="reactionResult"></p>
+            `;
+            
+            const box = document.getElementById('reactionBox');
+            let startTime, canClick = false;
+            
+            const delay = 1000 + Math.random() * 4000;
+            
+            setTimeout(() => {
+                box.classList.remove('waiting');
+                box.classList.add('ready');
+                box.textContent = 'CLICK!';
+                startTime = Date.now();
+                canClick = true;
+            }, delay);
+            
+            box.addEventListener('click', function handler() {
+                if (!canClick) {
+                    document.getElementById('reactionResult').textContent = 'Too early! 😅';
+                    box.removeEventListener('click', handler);
+                    return;
+                }
+                
+                const reactionTime = Date.now() - startTime;
+                let reward = Math.max(50, 200 - reactionTime);
+                
+                document.getElementById('reactionResult').textContent = 
+                    `${reactionTime}ms - ${reward} ore earned!`;
+                
+                gameState.ore += reward;
+                gameState.totalMined += reward;
+                updateDisplays();
+                saveGame();
+                
+                box.removeEventListener('click', handler);
+            });
+        }
+
+        // Memory Game
+        function memoryGame(title, area) {
+            title.textContent = '🧠 Memory Match';
+            
+            const emojis = ['🎮', '💎', '⭐', '🔥', '💫', '🌟', '✨', '🎯'];
+            const cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+            
+            area.innerHTML = `
+                <p>Match all pairs!</p>
+                <div class="memory-grid" id="memoryGrid"></div>
+                <p class="game-score" id="memoryScore">Pairs: 0/8</p>
+            `;
+            
+            const grid = document.getElementById('memoryGrid');
+            let flipped = [];
+            let matched = 0;
+            let canFlip = true;
+            
+            cards.forEach((emoji, i) => {
+                const tile = document.createElement('div');
+                tile.className = 'memory-tile';
+                tile.dataset.index = i;
+                tile.dataset.emoji = emoji;
+                
+                tile.addEventListener('click', () => {
+                    if (!canFlip || tile.classList.contains('revealed') || tile.classList.contains('matched')) return;
+                    
+                    tile.classList.add('revealed');
+                    tile.textContent = emoji;
+                    flipped.push(tile);
+                    
+                    if (flipped.length === 2) {
+                        canFlip = false;
+                        
+                        if (flipped[0].dataset.emoji === flipped[1].dataset.emoji) {
+                            flipped.forEach(t => t.classList.add('matched'));
+                            matched++;
+                            document.getElementById('memoryScore').textContent = `Pairs: ${matched}/8`;
+                            flipped = [];
+                            canFlip = true;
+                            
+                            if (matched === 8) {
+                                const reward = 500;
+                                gameState.ore += reward;
+                                gameState.totalMined += reward;
+                                updateDisplays();
+                                saveGame();
+                                showToast(`🎉 Memory Master! +${reward} ore!`);
+                            }
+                        } else {
+                            setTimeout(() => {
+                                flipped.forEach(t => {
+                                    t.classList.remove('revealed');
+                                    t.textContent = '';
+                                });
+                                flipped = [];
+                                canFlip = true;
+                            }, 1000);
+                        }
+                    }
+                });
+                
+                grid.appendChild(tile);
+            });
+        }
+
+        // Dodge Game
+        function dodgeGame(title, area) {
+            title.textContent = '🏃 Dodge Blocks';
+            area.innerHTML = `
+                <p>Move your mouse to dodge! Survive as long as possible!</p>
+                <div class="dodge-area" id="dodgeArea">
+                    <div class="dodge-player" id="dodgePlayer"></div>
+                </div>
+                <p class="game-timer" id="dodgeTimer">0.0s</p>
+            `;
+            
+            const dodgeArea = document.getElementById('dodgeArea');
+            const player = document.getElementById('dodgePlayer');
+            const timerEl = document.getElementById('dodgeTimer');
+            
+            let startTime = Date.now();
+            let gameRunning = true;
+            let blocks = [];
+            
+            dodgeArea.addEventListener('mousemove', (e) => {
+                if (!gameRunning) return;
+                const rect = dodgeArea.getBoundingClientRect();
+                const x = Math.max(0, Math.min(270, e.clientX - rect.left - 15));
+                const y = Math.max(0, Math.min(270, e.clientY - rect.top - 15));
+                player.style.left = x + 'px';
+                player.style.top = y + 'px';
+            });
+            
+            function spawnBlock() {
+                if (!gameRunning) return;
+                
+                const block = document.createElement('div');
+                block.className = 'dodge-block';
+                block.style.left = Math.random() * 260 + 'px';
+                block.style.top = '-40px';
+                dodgeArea.appendChild(block);
+                blocks.push(block);
+            }
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                const elapsed = (Date.now() - startTime) / 1000;
+                timerEl.textContent = elapsed.toFixed(1) + 's';
+                
+                const playerRect = player.getBoundingClientRect();
+                
+                blocks.forEach(block => {
+                    const top = parseFloat(block.style.top) + 3;
+                    block.style.top = top + 'px';
+                    
+                    const blockRect = block.getBoundingClientRect();
+                    
+                    if (top > 300) {
+                        block.remove();
+                        blocks = blocks.filter(b => b !== block);
+                    }
+                    
+                    // Collision detection
+                    if (playerRect.left < blockRect.right &&
+                        playerRect.right > blockRect.left &&
+                        playerRect.top < blockRect.bottom &&
+                        playerRect.bottom > blockRect.top) {
+                        gameRunning = false;
+                        const reward = Math.floor(elapsed * 10);
+                        gameState.ore += reward;
+                        gameState.totalMined += reward;
+                        updateDisplays();
+                        saveGame();
+                        timerEl.textContent = `Game Over! +${reward} ore!`;
+                    }
+                });
+                
+                if (gameRunning) requestAnimationFrame(update);
+            }
+            
+            setInterval(() => {
+                if (gameRunning) spawnBlock();
+            }, 500);
+            
+            update();
+        }
+
+        // Speed Click Game
+        function speedClickGame(title, area) {
+            title.textContent = '👆 Speed Click';
+            area.innerHTML = `
+                <p>Click as fast as you can in 10 seconds!</p>
+                <div class="click-target" id="clickTarget"></div>
+                <p class="game-score" id="clickCount">Clicks: 0</p>
+                <p class="game-timer" id="clickTimer">10.0s</p>
+            `;
+            
+            const target = document.getElementById('clickTarget');
+            let clicks = 0;
+            let timeLeft = 10;
+            let gameRunning = true;
+            
+            target.addEventListener('click', () => {
+                if (!gameRunning) return;
+                clicks++;
+                document.getElementById('clickCount').textContent = `Clicks: ${clicks}`;
+                createMultipleParticles(event.clientX, event.clientY, 2);
+            });
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('clickTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = clicks * 5;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('clickTimer').textContent = `Done! +${reward} ore!`;
+                }
+            }, 100);
+        }
+
+        // Rhythm Game
+        function rhythmGame(title, area) {
+            title.textContent = '🎵 Rhythm Tap';
+            area.innerHTML = `
+                <p>Press SPACE when notes hit the target!</p>
+                <div class="rhythm-lane" id="rhythmLane">
+                    <div class="rhythm-target"></div>
+                </div>
+                <p class="game-score" id="rhythmScore">Score: 0</p>
+                <p class="game-timer" id="rhythmHits">Perfect: 0 | Good: 0 | Miss: 0</p>
+            `;
+            
+            const lane = document.getElementById('rhythmLane');
+            let score = 0;
+            let perfect = 0, good = 0, miss = 0;
+            let notes = [];
+            let gameRunning = true;
+            let notesSpawned = 0;
+            const maxNotes = 15;
+            
+            function spawnNote() {
+                if (!gameRunning || notesSpawned >= maxNotes) return;
+                
+                const note = document.createElement('div');
+                note.className = 'rhythm-note';
+                note.style.top = '-20px';
+                lane.appendChild(note);
+                notes.push({ el: note, hit: false });
+                notesSpawned++;
+            }
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                notes.forEach((note, i) => {
+                    const top = parseFloat(note.el.style.top) + 2;
+                    note.el.style.top = top + 'px';
+                    
+                    if (top > 300 && !note.hit) {
+                        miss++;
+                        note.hit = true;
+                        note.el.remove();
+                        updateRhythmDisplay();
+                    }
+                });
+                
+                notes = notes.filter(n => !n.hit || parseFloat(n.el.style.top) <= 300);
+                
+                if (notes.length === 0 && notesSpawned >= maxNotes) {
+                    gameRunning = false;
+                    const reward = score;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('rhythmScore').textContent = `Done! +${reward} ore!`;
+                } else {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            function updateRhythmDisplay() {
+                document.getElementById('rhythmScore').textContent = `Score: ${score}`;
+                document.getElementById('rhythmHits').textContent = `Perfect: ${perfect} | Good: ${good} | Miss: ${miss}`;
+            }
+            
+            document.addEventListener('keydown', function handler(e) {
+                if (e.code !== 'Space' || !gameRunning) return;
+                e.preventDefault();
+                
+                const targetTop = 260;
+                let closestNote = null;
+                let closestDist = Infinity;
+                
+                notes.forEach(note => {
+                    if (note.hit) return;
+                    const top = parseFloat(note.el.style.top);
+                    const dist = Math.abs(top - targetTop);
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        closestNote = note;
+                    }
+                });
+                
+                if (closestNote && closestDist < 50) {
+                    closestNote.hit = true;
+                    closestNote.el.remove();
+                    
+                    if (closestDist < 15) {
+                        perfect++;
+                        score += 20;
+                    } else {
+                        good++;
+                        score += 10;
+                    }
+                    updateRhythmDisplay();
+                }
+                
+                if (!gameRunning) {
+                    document.removeEventListener('keydown', handler);
+                }
+            });
+            
+            const spawnInterval = setInterval(() => {
+                if (gameRunning && notesSpawned < maxNotes) spawnNote();
+                else clearInterval(spawnInterval);
+            }, 600);
+            
+            update();
+        }
+
+        // Math Game
+        function mathGame(title, area) {
+            title.textContent = '🔢 Math Rush';
+            area.innerHTML = `
+                <p>Solve as many as you can in 30 seconds!</p>
+                <div class="math-problem" id="mathProblem"></div>
+                <input type="number" class="math-input" id="mathInput" autofocus>
+                <p class="game-score" id="mathScore">Correct: 0</p>
+                <p class="game-timer" id="mathTimer">30.0s</p>
+            `;
+            
+            const problemEl = document.getElementById('mathProblem');
+            const input = document.getElementById('mathInput');
+            let correct = 0;
+            let answer = 0;
+            let timeLeft = 30;
+            let gameRunning = true;
+            
+            function newProblem() {
+                const a = Math.floor(Math.random() * 20) + 1;
+                const b = Math.floor(Math.random() * 20) + 1;
+                const ops = ['+', '-', '×'];
+                const op = ops[Math.floor(Math.random() * ops.length)];
+                
+                switch(op) {
+                    case '+': answer = a + b; break;
+                    case '-': answer = a - b; break;
+                    case '×': answer = a * b; break;
+                }
+                
+                problemEl.textContent = `${a} ${op} ${b} = ?`;
+                input.value = '';
+                input.focus();
+            }
+            
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && gameRunning) {
+                    if (parseInt(input.value) === answer) {
+                        correct++;
+                        document.getElementById('mathScore').textContent = `Correct: ${correct}`;
+                        newProblem();
+                    } else {
+                        input.style.borderColor = 'red';
+                        setTimeout(() => input.style.borderColor = '', 200);
+                    }
+                }
+            });
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('mathTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = correct * 100;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('mathTimer').textContent = `Done! +${reward} ore!`;
+                    input.disabled = true;
+                }
+            }, 100);
+            
+            newProblem();
+        }
+
+        // Slider Game (Diamond chance)
+        function sliderGame(title, area) {
+            title.textContent = '🎯 Precision Stop';
+            area.innerHTML = `
+                <p>Stop the marker in the GREEN zone for diamonds!</p>
+                <div class="precision-slider" id="precisionSlider">
+                    <div class="slider-marker" id="sliderMarker"></div>
+                </div>
+                <button class="game-btn" id="stopBtn">STOP!</button>
+                <p class="game-score" id="sliderResult"></p>
+            `;
+            
+            const marker = document.getElementById('sliderMarker');
+            let position = 0;
+            let direction = 1;
+            let speed = 3;
+            let gameRunning = true;
+            
+            function animate() {
+                if (!gameRunning) return;
+                
+                position += direction * speed;
+                if (position >= 290) direction = -1;
+                if (position <= 0) direction = 1;
+                
+                marker.style.left = position + 'px';
+                requestAnimationFrame(animate);
+            }
+            
+            document.getElementById('stopBtn').addEventListener('click', () => {
+                if (!gameRunning) return;
+                gameRunning = false;
+                
+                const greenStart = 135;
+                const greenEnd = 165;
+                
+                if (position >= greenStart && position <= greenEnd) {
+                    gameState.diamondOre += 1;
+                    document.getElementById('sliderResult').textContent = '💠 DIAMOND! Perfect precision!';
+                    showToast('💠 +1 Diamond Ore!');
+                } else {
+                    const reward = 50;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    document.getElementById('sliderResult').textContent = `Close! +${reward} ore`;
+                }
+                
+                updateDisplays();
+                saveGame();
+            });
+            
+            animate();
+        }
+
+        // Wheel Game
+        function wheelGame(title, area) {
+            title.textContent = '🎰 Lucky Wheel';
+            area.innerHTML = `
+                <p>Spin for prizes!</p>
+                <div class="wheel-container">
+                    <div class="wheel-pointer">⬇️</div>
+                    <div class="wheel" id="wheel"></div>
+                </div>
+                <button class="game-btn" id="spinBtn">SPIN!</button>
+                <p class="game-score" id="wheelResult"></p>
+            `;
+            
+            const wheel = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spinBtn');
+            let spinning = false;
+            
+            const prizes = [
+                { text: '100 Ore', ore: 100, diamond: 0 },
+                { text: '1 Diamond', ore: 0, diamond: 1 },
+                { text: '200 Ore', ore: 200, diamond: 0 },
+                { text: '2 Diamonds', ore: 0, diamond: 2 },
+                { text: '500 Ore', ore: 500, diamond: 0 },
+                { text: '3 Diamonds', ore: 0, diamond: 3 },
+                { text: '1000 Ore', ore: 1000, diamond: 0 },
+                { text: '5 Diamonds!', ore: 0, diamond: 5 },
+            ];
+            
+            spinBtn.addEventListener('click', () => {
+                if (spinning) return;
+                spinning = true;
+                spinBtn.disabled = true;
+                
+                const spins = 5 + Math.random() * 5;
+                const extraDegrees = Math.random() * 360;
+                const totalRotation = spins * 360 + extraDegrees;
+                
+                wheel.style.transform = `rotate(${totalRotation}deg)`;
+                
+                setTimeout(() => {
+                    const finalAngle = extraDegrees;
+                    const prizeIndex = Math.floor((360 - (finalAngle % 360)) / 45) % 8;
+                    const prize = prizes[prizeIndex];
+                    
+                    gameState.ore += prize.ore;
+                    gameState.totalMined += prize.ore;
+                    gameState.diamondOre += prize.diamond;
+                    
+                    document.getElementById('wheelResult').textContent = `🎉 ${prize.text}!`;
+                    
+                    if (prize.diamond > 0) {
+                        showToast(`💠 +${prize.diamond} Diamond Ore!`);
+                    }
+                    
+                    updateDisplays();
+                    saveGame();
+                    spinning = false;
+                    spinBtn.disabled = false;
+                }, 4000);
+            });
+        }
+
+        // Jump Game
+        function jumpGame(title, area) {
+            title.textContent = '🦘 Gravity Jump';
+            area.innerHTML = `
+                <p>Press SPACE to jump on platforms!</p>
+                <div class="jump-area" id="jumpArea">
+                    <div class="jump-player" id="jumpPlayer"></div>
+                </div>
+                <p class="game-score" id="jumpScore">Platforms: 0</p>
+            `;
+            
+            const jumpArea = document.getElementById('jumpArea');
+            const player = document.getElementById('jumpPlayer');
+            let playerY = 20;
+            let velocityY = 0;
+            let platforms = [];
+            let score = 0;
+            let gameRunning = true;
+            const gravity = 0.3;
+            const jumpForce = -10;
+            
+            // Create initial platforms
+            for (let i = 0; i < 5; i++) {
+                createPlatform(50 + Math.random() * 170, 160 - i * 40);
+            }
+            
+            function createPlatform(x, y) {
+                const platform = document.createElement('div');
+                platform.className = 'jump-platform';
+                platform.style.left = x + 'px';
+                platform.style.bottom = y + 'px';
+                jumpArea.appendChild(platform);
+                platforms.push({ el: platform, x, y });
+            }
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                velocityY += gravity;
+                playerY -= velocityY;
+                
+                if (playerY < 20) {
+                    playerY = 20;
+                    velocityY = 0;
+                }
+                
+                player.style.bottom = playerY + 'px';
+                
+                // Check platform collisions
+                platforms.forEach(p => {
+                    const pBottom = parseFloat(p.el.style.bottom);
+                    if (velocityY > 0 &&
+                        playerY <= pBottom + 15 &&
+                        playerY >= pBottom &&
+                        130 > parseFloat(p.el.style.left) &&
+                        130 < parseFloat(p.el.style.left) + 80) {
+                        velocityY = jumpForce;
+                        score++;
+                        document.getElementById('jumpScore').textContent = `Platforms: ${score}`;
+                        
+                        // Move platforms down
+                        platforms.forEach(pl => {
+                            const currentBottom = parseFloat(pl.el.style.bottom);
+                            pl.el.style.bottom = (currentBottom - 30) + 'px';
+                            
+                            if (currentBottom < 0) {
+                                pl.el.style.bottom = '180px';
+                                pl.el.style.left = (50 + Math.random() * 170) + 'px';
+                            }
+                        });
+                    }
+                });
+                
+                if (playerY < 0) {
+                    gameRunning = false;
+                    const reward = score * 15;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('jumpScore').textContent = `Game Over! +${reward} ore!`;
+                }
+                
+                if (gameRunning) requestAnimationFrame(update);
+            }
+            
+            document.addEventListener('keydown', function handler(e) {
+                if (e.code === 'Space' && gameRunning && playerY <= 25) {
+                    e.preventDefault();
+                    velocityY = jumpForce;
+                }
+                if (!gameRunning) document.removeEventListener('keydown', handler);
+            });
+            
+            update();
+        }
+
+        // Boss Game
+        function bossGame(title, area) {
+            title.textContent = '👹 Mini Boss';
+            area.innerHTML = `
+                <p>Defeat the Air Elemental!</p>
+                <div class="boss-container">
+                    <div class="boss-health">
+                        <div class="boss-health-fill" id="bossHealth" style="width: 100%"></div>
+                    </div>
+                    <div class="boss-enemy" id="bossEnemy">👹</div>
+                </div>
+                <p class="game-score" id="bossScore">HP: 100/100</p>
+            `;
+            
+            const boss = document.getElementById('bossEnemy');
+            const healthBar = document.getElementById('bossHealth');
+            let hp = 100;
+            let gameRunning = true;
+            
+            boss.addEventListener('click', (e) => {
+                if (!gameRunning) return;
+                
+                const damage = 5 + Math.floor(Math.random() * 5);
+                hp -= damage;
+                
+                if (hp < 0) hp = 0;
+                
+                healthBar.style.width = hp + '%';
+                document.getElementById('bossScore').textContent = `HP: ${hp}/100`;
+                
+                createMultipleParticles(e.clientX, e.clientY, 3);
+                boss.style.transform = 'scale(0.9)';
+                setTimeout(() => boss.style.transform = '', 100);
+                
+                if (hp <= 0) {
+                    gameRunning = false;
+                    boss.textContent = '💀';
+                    
+                    const oreReward = 500;
+                    const diamondReward = 1;
+                    
+                    gameState.ore += oreReward;
+                    gameState.totalMined += oreReward;
+                    gameState.diamondOre += diamondReward;
+                    
+                    updateDisplays();
+                    saveGame();
+                    
+                    document.getElementById('bossScore').textContent = `Victory! +${oreReward} ore +${diamondReward} 💠!`;
+                    showToast('👹 Boss Defeated! +1 Diamond!');
+                }
+            });
+        }
+
+        // Endgame
+        function showEndgame() {
+            document.getElementById('endgameModal').classList.add('active');
+        }
+
+        document.querySelectorAll('.endgame-choice').forEach(choice => {
+            choice.addEventListener('click', function() {
+                const choiceType = this.dataset.choice;
+                gameState.endgameChoice = choiceType;
+                
+                if (choiceType === 'ai') {
+                    gameState.unlimitedAI = true;
+                    document.getElementById('unlimitedBadge').style.display = 'inline-block';
+                    document.getElementById('chatCost').textContent = '✨ UNLIMITED - Chat for free forever! ✨';
+                    document.getElementById('chatSend').textContent = 'Send (FREE!)';
+                    showToast('🤖 Unlimited AI Unlocked! Chat freely!');
+                } else {
+                    gameState.infinityMine = true;
+                    document.getElementById('infinityIndicator').style.display = 'block';
+                    showToast('♾️ Infinity Mine Active! +100/sec forever!');
+                }
+                
+                saveGame();
+                document.getElementById('endgameModal').classList.remove('active');
+            });
+        });
+
+        // Auto mining
+        setInterval(() => {
+            if (gameState.autoMine > 0) {
+                gameState.ore += gameState.autoMine;
+                gameState.totalMined += gameState.autoMine;
+                updateDisplays();
+                saveGame();
+            }
+            
+            if (gameState.infinityMine) {
+                gameState.ore += 100;
+                gameState.totalMined += 100;
+                updateDisplays();
+                saveGame();
+            }
+        }, 1000);
+
+        // Floating jokes
+        const jokes = [
+            "The ore whispers: 'click me'",
+            "Your GPU is mining... vibes",
+            "Achievement: Breathing Air",
+            "Error 404: Weight not found",
+            "Mining difficulty: Yes",
+            "Blockchain? More like airchain",
+            "This game runs on hopes and dreams",
+        ];
+
+        function showJoke() {
+            const joke = document.getElementById('floatingJoke');
+            joke.textContent = jokes[Math.floor(Math.random() * jokes.length)];
+            joke.style.left = Math.random() * (window.innerWidth - 200) + 'px';
+            joke.style.top = Math.random() * (window.innerHeight - 100) + 'px';
+            joke.classList.add('visible');
+            setTimeout(() => joke.classList.remove('visible'), 3000);
+        }
+
+        // Initialize
+        loadGame();
+        
+        if (gameState.hasCompletedIntro) {
+            document.getElementById('initial-mining').classList.add('hidden');
+            showMainApp();
+        }
+
+        // Auto-save every 10 seconds
+        setInterval(saveGame, 10000);
+
+        console.log('%c💨 AIR ORE 💨', 'font-size: 30px; color: #00f5ff; text-shadow: 0 0 10px #00f5ff;');
+        console.log('%cMining air since 2026™', 'font-size: 14px; color: #888;');
+        console.log('%cYes, you found the console. No, there are no cheats here. Or are there? 👀', 'font-size: 12px; color: #ff00ff;');
+    </script>
+</body>
+</html>

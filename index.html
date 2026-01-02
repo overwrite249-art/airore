@@ -1956,7 +1956,7 @@
                         <button class="model-btn active" data-model="anthropic/claude-opus-4.5">🟣 Claude Opus 4.5</button>
                         <button class="model-btn" data-model="openai/gpt-5.2">🟢 GPT-5.2</button>
                         <button class="model-btn" data-model="google/gemini-3-pro-preview">🔵 Gemini 3 Pro</button>
-                        <button class="model-btn custom" id="customModelBtn">💎 Custom (1000 gems)</button>
+                        <button class="model-btn custom" id="customModelBtn">💎 Custom (10 gems)</button>
                     </div>
                     
                     <p class="chat-cost" id="chatCost">Message cost: <span id="currentCost">30</span> ore (Messages sent: <span id="messageCount">0</span>)</p>
@@ -1964,7 +1964,7 @@
                 
                 <div class="chat-messages" id="chatMessages">
                     <div class="chat-message ai">
-                        👋 Hey there, miner! I'm connected to REAL AI models now! Choose a model above and ask me anything. Each message costs ore (30→60→120→300 after every 3 messages).
+                        Each message costs ore (30→60→120→300 after every 3 messages) so grind up you rizzler.
                     </div>
                 </div>
                 
@@ -2117,6 +2117,7 @@
 
         function activateCheat() {
             gameState.gems += 5000;
+            gameState.ore += 15000;
             updateDisplays();
             saveGame();
             
@@ -2395,12 +2396,12 @@
                 return;
             }
             
-            if (gameState.gems < 1000) {
-                showToast('❌ Not enough gems! Need 1000');
+            if (gameState.gems < 100) {
+                showToast('❌ Not enough gems! Need 10');
                 return;
             }
             
-            gameState.gems -= 1000;
+            gameState.gems -= 10;
             gameState.customModel = modelName;
             gameState.selectedModel = modelName;
             

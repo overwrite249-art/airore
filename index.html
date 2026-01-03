@@ -5460,7 +5460,29 @@
             document.getElementById('initial-mining').classList.add('hidden');
             showMainApp();
         }
+        // ==================== AUTO MINING LOOP ====================
+        setInterval(() => {
+            // Calculate total Ore Per Second (OPS)
+            let ops = gameState.autoMine * gameState.globalMultiplier;
 
+            // Add Infinity Mine bonus if unlocked
+            if (gameState.infinityMine) {
+                ops += 100;
+            }
+
+            // Only update if we are generating something
+            if (ops > 0) {
+                // We run this every 100ms (10 times a second) for smooth numbers
+                // So we add 1/10th of the OPS each tick
+                const oreToAdd = ops / 10;
+                
+                gameState.ore += oreToAdd;
+                gameState.totalMined += oreToAdd;
+                
+                // Update the screen
+                updateDisplays();
+            }
+        }, 100);
         // Auto-save
         setInterval(saveGame, 10000);
 

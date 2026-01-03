@@ -5369,7 +5369,27 @@
                 if (!response.ok) throw new Error('API request failed');
                 
                 const data = await response.json();
-                typingMsg.innerHTML = parseCodeBlocks(data.response || 'No response received');
+                
+                // FIXED: Logic to handle formatting directly since parseCodeBlocks function was missing
+                const rawResponse = data.response || 'No response received';
+                
+                // Simple Markdown-style code block parser
+                const formattedResponse = rawResponse
+                    .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                        // Escape HTML characters inside the code block
+                        const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                        return `<div class="code-block-wrapper">
+                            <div class="code-block-header">
+                                <span>${lang || 'code'}</span>
+                                <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.code-block-wrapper').querySelector('.code-block').innerText)">Copy</button>
+                            </div>
+                            <pre class="code-block">${escapedCode}</pre>
+                        </div>`;
+                    })
+                    // Convert remaining newlines to breaks, but not inside <pre> tags
+                    .replace(/(<pre[\s\S]*?<\/pre>)|(\n)/g, (match, pre, nl) => pre ? pre : (nl ? '<br>' : ''));
+
+                typingMsg.innerHTML = formattedResponse;
                 
             } catch (error) {
                 console.error('API Error:', error);
@@ -5383,7 +5403,7 @@
             
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             chatSend.disabled = false;
-        } // end of sendMessage function
+        }
         document.getElementById('clearChatBtn').addEventListener('click', function() {
             if (confirm("Clear all messages?")) {
                 const messagesDiv = document.getElementById('chatMessages');

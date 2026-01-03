@@ -2748,6 +2748,7 @@
                                 <i class="fas fa-paper-plane"></i>
                                 <span id="sendCost">30</span>
                             </button>
+                            <button id="clearChatBtn" title="Clear History" style="background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-muted); padding: 12px; border-radius: var(--radius-md); cursor: pointer; margin-left: 5px;"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 </div>
@@ -4408,7 +4409,6 @@
                     updateDisplays();
                     saveGame();
                     showToast(`${wordsTyped} words! +${reward} ore`, 'success');
-                    input.disabled = true;
                 }
             }, 100);
             
@@ -4638,13 +4638,8 @@
             const gameName = document.getElementById('customGameName').value.trim();
             const gamePrompt = document.getElementById('customGamePrompt').value.trim();
             
-            if (!gameName) {
-                showToast('Please enter a game name', 'error');
-                return;
-            }
-            
-            if (!gamePrompt) {
-                showToast('Please describe your game', 'error');
+            if (!gameName || !gamePrompt) {
+                showToast('Please fill in all fields', 'error');
                 return;
             }
             
@@ -4655,29 +4650,20 @@
             
             gameState.gems -= 5;
             updateDisplays();
-            
             showToast('Creating your game with AI...', 'info');
             
             try {
-                const systemPrompt = `You are a game developer. Create a simple HTML/CSS/JS minigame based on the user's description. 
-                The game should:
-                - Be self-contained in a single HTML string
-                - Use inline CSS and JS
-                - Call window.parent.postMessage({type: 'gameReward', ore: X}, '*') to award ore to the player
-                - Be playable with mouse/keyboard
-                - Have a clear win/lose condition
-                - Be fun and engaging
-                
-                Return ONLY the HTML code, no explanation. Start with <div> not <!DOCTYPE>.
-                Use these colors: background #21262d, accent #58a6ff, text #e6edf3`;
-                
+                const systemPrompt = `You are a game developer. Create a simple HTML/CSS/JS minigame. 
+        Return ONLY the HTML code. Start with <div>.
+        Award ore using: window.parent.postMessage({type: 'gameReward', ore: 50}, '*')`;
+        
                 const response = await fetch(`${API_BASE_URL}/chat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        user_id: gameState.userId,
+                        user_id: "game_gen_" + Math.random().toString(36).substr(2, 9), // Uses fresh ID to ignore history
                         message: `Create a minigame: ${gamePrompt}`,
-                        model: 'openrouter:anthropic/claude-opus-4.5',
+                        model: 'openrouter:google/gemini-3-pro-preview', // Force Gemini 3 Pro
                         system: systemPrompt
                     })
                 });
@@ -4686,17 +4672,9 @@
                 
                 const data = await response.json();
                 let gameCode = data.response || '';
-                
-                // Clean up response
                 gameCode = gameCode.replace(/```html/g, '').replace(/```/g, '').trim();
                 
-                // Save custom game
-                gameState.customGames.push({
-                    name: gameName,
-                    code: gameCode,
-                    prompt: gamePrompt
-                });
-                
+                gameState.customGames.push({ name: gameName, code: gameCode, prompt: gamePrompt });
                 saveGame();
                 generateMinigames();
                 
@@ -4707,10 +4685,9 @@
                 showToast(`Game "${gameName}" created!`, 'success');
                 
             } catch (error) {
-                console.error('Game creation error:', error);
                 gameState.gems += 5; // Refund
                 updateDisplays();
-                showToast('Failed to create game. Gems refunded.', 'error');
+                showToast('Creation failed. Gems refunded.', 'error');
             }
         });
 
@@ -4875,49 +4852,17 @@
             
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
             chatSend.disabled = false;
-        }
-
-        function parseCodeBlocks(text) {
-            let result = text;
-            
-            // Handle <codestart>...<codeend>
-            result = result.replace(/<codestart>([\s\S]*?)<codeend>/g, (match, code) => {
-                return `<div class="code-block-wrapper">
-                    <div class="code-block-header">
-                        <span>Code</span>
-                        <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
-                    </div>
-                    <pre class="code-block">${escapeHtml(code.trim())}</pre>
-                </div>`;
-            });
-            
-            // Handle ```...```
-            result = result.replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, lang, code) => {
-                return `<div class="code-block-wrapper">
-                    <div class="code-block-header">
-                        <span>${lang || 'Code'}</span>
-                        <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
-                    </div>
-                    <pre class="code-block">${escapeHtml(code.trim())}</pre>
-                </div>`;
-            });
-            
-            return result;
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        window.copyCode = function(btn) {
-            const code = btn.closest('.code-block-wrapper').querySelector('.code-block').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                btn.textContent = 'Copied!';
-                setTimeout(() => btn.textContent = 'Copy', 1500);
-            });
-        };
+        } // end of sendMessage function
+        document.getElementById('clearChatBtn').addEventListener('click', function() {
+            if (confirm("Clear all messages?")) {
+                const messagesDiv = document.getElementById('chatMessages');
+                messagesDiv.innerHTML = '<div class="chat-message ai">History cleared. New conversation started.</div>';
+                // We change the user ID so the AI forgets previous context
+                gameState.userId = 'user_' + Math.random().toString(36).substr(2, 9);
+                saveGame();
+                showToast('Chat history wiped!', 'info');
+            }
+        });
 
         // ==================== ENDGAME ====================
         function showEndgame() {
@@ -4944,24 +4889,6 @@
                 document.getElementById('endgameModal').classList.remove('active');
             });
         });
-
-        // ==================== AUTO MINING ====================
-        setInterval(() => {
-            if (gameState.autoMine > 0) {
-                const earned = Math.floor(gameState.autoMine * gameState.globalMultiplier);
-                gameState.ore += earned;
-                gameState.totalMined += earned;
-                updateDisplays();
-                saveGame();
-            }
-            
-            if (gameState.infinityMine) {
-                gameState.ore += 100;
-                gameState.totalMined += 100;
-                updateDisplays();
-                saveGame();
-            }
-        }, 1000);
 
         // ==================== MISC ====================
         function showRandomTip() {

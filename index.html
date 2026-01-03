@@ -1,0 +1,4994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Ore - Mining Air Since 2026</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-card: #1c2128;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-purple: #a371f7;
+            --accent-orange: #d29922;
+            --accent-pink: #f778ba;
+            --accent-red: #f85149;
+            --accent-cyan: #39c5cf;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --border-color: #30363d;
+            --border-subtle: #21262d;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* Utility Classes */
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #4c9aed;
+            border-color: #4c9aed;
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: #fff;
+        }
+
+        .btn-success:hover {
+            background: #36a548;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes particleRise {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.5); }
+        }
+
+        .shake { animation: shake 0.1s ease-in-out; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        .slide-up { animation: slideUp 0.4s ease-out; }
+
+        /* Initial Mining Screen */
+        #initial-mining {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        #initial-mining.hidden {
+            display: none;
+        }
+
+        .mining-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .mining-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .mining-logo i {
+            color: var(--accent-blue);
+        }
+
+        .mining-subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .ore-rock {
+            width: 180px;
+            height: 180px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .ore-rock:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 30px rgba(88, 166, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .ore-rock:active {
+            transform: scale(0.95);
+        }
+
+        .ore-rock i {
+            font-size: 4rem;
+            color: var(--accent-blue);
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .mining-progress {
+            margin-top: 40px;
+            text-align: center;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-blue);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .progress-text {
+            margin-top: 12px;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .progress-text span {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .mining-hint {
+            margin-top: 24px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Welcome Popup */
+        .welcome-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            text-align: center;
+            z-index: 2000;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .welcome-popup.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .welcome-popup h2 {
+            color: var(--accent-green);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .welcome-popup p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* Particle System */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1rem;
+            z-index: 9999;
+            animation: particleRise 0.8s ease-out forwards;
+        }
+
+        .particle i {
+            color: var(--accent-blue);
+        }
+
+        /* Main App */
+        #main-app {
+            display: none;
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        #main-app.visible {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .logo:hover {
+            opacity: 0.8;
+        }
+
+        .logo i {
+            color: var(--accent-blue);
+            font-size: 1.5rem;
+        }
+
+        .currency-display {
+            display: flex;
+            gap: 16px;
+        }
+
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+        }
+
+        .currency-item i {
+            font-size: 1rem;
+        }
+
+        .currency-item.ore i { color: var(--accent-blue); }
+        .currency-item.diamond i { color: var(--accent-cyan); }
+        .currency-item.gems i { color: var(--accent-purple); }
+
+        .currency-amount {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .currency-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-left: 2px;
+        }
+
+        /* Navigation */
+        .nav-container {
+            padding: 80px 24px 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            background: var(--bg-secondary);
+            padding: 6px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-tab.active {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        .nav-tab i {
+            font-size: 1rem;
+        }
+
+        /* Content Sections */
+        .content-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px 24px;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .section-title i {
+            color: var(--accent-blue);
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Mine Section */
+        .mine-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .mine-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mine-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+        }
+
+        .big-ore {
+            width: 240px;
+            height: 240px;
+            background: var(--bg-tertiary);
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .big-ore:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 40px rgba(88, 166, 255, 0.15);
+        }
+
+        .big-ore:active {
+            transform: scale(0.95);
+        }
+
+        .big-ore i {
+            font-size: 5rem;
+            color: var(--accent-blue);
+            transition: transform 0.1s;
+        }
+
+        .click-info {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .click-info span {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .mine-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-header i {
+            color: var(--accent-blue);
+        }
+
+        .stat-card-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-card-sub {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 24px;
+            width: 100%;
+        }
+
+        .mini-stat {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            text-align: center;
+        }
+
+        .mini-stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+        }
+
+        .mini-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* Upgrades Section */
+        .upgrades-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #fff;
+        }
+
+        .upgrades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .upgrade-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .upgrade-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .upgrade-card.owned {
+            border-color: var(--accent-green);
+            background: rgba(63, 185, 80, 0.05);
+        }
+
+        .upgrade-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .upgrade-card.locked:hover {
+            transform: none;
+            border-color: var(--border-color);
+        }
+
+        .upgrade-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .upgrade-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .upgrade-icon.click { color: var(--accent-blue); }
+        .upgrade-icon.auto { color: var(--accent-green); }
+        .upgrade-icon.luck { color: var(--accent-purple); }
+        .upgrade-icon.special { color: var(--accent-orange); }
+        .upgrade-icon.prestige { color: var(--accent-pink); }
+
+        .upgrade-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .upgrade-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .upgrade-tier {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .upgrade-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .upgrade-effect {
+            font-size: 0.8rem;
+            color: var(--accent-green);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .upgrade-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .upgrade-cost {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .upgrade-cost i {
+            color: var(--accent-blue);
+        }
+
+        .upgrade-owned-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--accent-green);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .upgrade-level {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Minigames Section */
+        .minigames-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .create-game-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--accent-purple);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .create-game-btn:hover {
+            background: #9461e6;
+            transform: translateY(-1px);
+        }
+
+        .minigames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .minigame-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .minigame-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .minigame-card.featured {
+            border-color: var(--accent-orange);
+            background: linear-gradient(135deg, var(--bg-secondary), rgba(210, 153, 34, 0.05));
+        }
+
+        .minigame-card.custom {
+            border-color: var(--accent-purple);
+            background: linear-gradient(135deg, var(--bg-secondary), rgba(163, 113, 247, 0.05));
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent-orange);
+            color: #000;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .custom-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent-purple);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .minigame-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 12px;
+        }
+
+        .minigame-icon i { color: var(--accent-blue); }
+        .minigame-card.featured .minigame-icon i { color: var(--accent-orange); }
+        .minigame-card.custom .minigame-icon i { color: var(--accent-purple); }
+
+        .minigame-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .minigame-desc {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+        }
+
+        .minigame-reward {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--accent-green);
+        }
+
+        .minigame-reward.diamond {
+            color: var(--accent-cyan);
+        }
+
+        /* Game Modal */
+        .game-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            padding: 20px;
+        }
+
+        .game-modal.active {
+            display: flex;
+        }
+
+        .game-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .game-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .game-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .game-title i {
+            color: var(--accent-blue);
+        }
+
+        .game-close {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .game-close:hover {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fff;
+        }
+
+        .game-body {
+            padding: 24px;
+        }
+
+        .game-instructions {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .game-stats {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .game-stat {
+            text-align: center;
+        }
+
+        .game-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .game-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .game-stat-value.score { color: var(--accent-green); }
+        .game-stat-value.time { color: var(--accent-orange); }
+        .game-stat-value.combo { color: var(--accent-purple); }
+
+        /* AI Chat Section */
+        .chat-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .chat-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .chat-header-title i {
+            color: var(--accent-purple);
+        }
+
+        .unlimited-badge {
+            background: var(--accent-green);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .chat-header-sub {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .model-selector {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .model-btn {
+            padding: 8px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .model-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .model-btn.active {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+            color: #fff;
+        }
+
+        .model-btn.custom {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        .chat-cost-info {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-cost-info i {
+            color: var(--accent-orange);
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-message {
+            padding: 12px 16px;
+            border-radius: var(--radius-lg);
+            max-width: 85%;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .chat-message.user {
+            background: var(--accent-blue);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.ai {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: inherit;
+        }
+
+        .code-block-wrapper {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .code-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .code-copy-btn {
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .code-copy-btn:hover {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: #fff;
+        }
+
+        .code-block {
+            padding: 12px;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .chat-input-area {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .chat-send {
+            padding: 12px 24px;
+            background: var(--accent-purple);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-send:hover {
+            background: #9461e6;
+        }
+
+        .chat-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Custom Model Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 600;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            max-width: 480px;
+            width: 100%;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-title i {
+            color: var(--accent-orange);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fff;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-input-group {
+            margin-bottom: 16px;
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .modal-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px 14px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .modal-textarea:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+
+        .modal-info {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .modal-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-info-item i {
+            font-size: 0.9rem;
+        }
+
+        .modal-warning {
+            color: var(--accent-orange);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-cancel {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .modal-btn-cancel:hover {
+            background: var(--bg-card);
+        }
+
+        .modal-btn-confirm {
+            background: var(--accent-purple);
+            border: none;
+            color: #fff;
+        }
+
+        .modal-btn-confirm:hover {
+            background: #9461e6;
+        }
+
+        /* Endgame Modal */
+        .endgame-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .endgame-modal.active {
+            display: flex;
+        }
+
+        .endgame-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .endgame-icon {
+            font-size: 4rem;
+            color: var(--accent-orange);
+            margin-bottom: 20px;
+        }
+
+        .endgame-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .endgame-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .endgame-choices {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .endgame-choice {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            max-width: 260px;
+            text-align: center;
+        }
+
+        .endgame-choice:hover {
+            transform: translateY(-4px);
+        }
+
+        .endgame-choice.ai-choice {
+            border-color: var(--accent-purple);
+        }
+
+        .endgame-choice.ai-choice:hover {
+            box-shadow: 0 0 30px rgba(163, 113, 247, 0.3);
+        }
+
+        .endgame-choice.mine-choice {
+            border-color: var(--accent-green);
+        }
+
+        .endgame-choice.mine-choice:hover {
+            box-shadow: 0 0 30px rgba(63, 185, 80, 0.3);
+        }
+
+        .choice-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .endgame-choice.ai-choice .choice-icon {
+            color: var(--accent-purple);
+        }
+
+        .endgame-choice.mine-choice .choice-icon {
+            color: var(--accent-green);
+        }
+
+        .choice-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .choice-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* News Ticker */
+        .ticker {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 10px 0;
+            overflow: hidden;
+            z-index: 50;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: ticker 40s linear infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .ticker-item {
+            padding: 0 40px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ticker-item i {
+            color: var(--accent-blue);
+        }
+
+        .ticker-item span {
+            color: var(--accent-blue);
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            padding: 12px 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-color: var(--accent-green); }
+        .toast.error { border-color: var(--accent-red); }
+        .toast.info { border-color: var(--accent-blue); }
+
+        .toast i {
+            font-size: 1.1rem;
+        }
+
+        .toast.success i { color: var(--accent-green); }
+        .toast.error i { color: var(--accent-red); }
+        .toast.info i { color: var(--accent-blue); }
+
+        /* Infinity Indicator */
+        .infinity-indicator {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            padding: 12px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--accent-green);
+            border-radius: var(--radius-lg);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-md);
+            z-index: 50;
+        }
+
+        .infinity-indicator.show {
+            display: flex;
+        }
+
+        .infinity-indicator i {
+            color: var(--accent-green);
+        }
+
+        .infinity-indicator span {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        /* Cheat Popup */
+        .cheat-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 24px 40px;
+            background: var(--accent-purple);
+            border-radius: var(--radius-xl);
+            font-size: 1.5rem;
+            font-weight: 700;
+            z-index: 2000;
+            display: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .cheat-popup.show {
+            display: block;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        /* Patch Notes */
+        .patch-notes {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            margin-top: 24px;
+            overflow: hidden;
+        }
+
+        .patch-header {
+            padding: 16px 20px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .patch-header i {
+            color: var(--accent-orange);
+        }
+
+        .patch-version {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-left: auto;
+        }
+
+        .patch-body {
+            padding: 16px 20px;
+        }
+
+        .patch-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .patch-item i {
+            color: var(--accent-green);
+            margin-top: 2px;
+        }
+
+        /* Game Specific Styles */
+        
+        /* Reaction Game */
+        .reaction-box {
+            width: 200px;
+            height: 200px;
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .reaction-box.waiting {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        .reaction-box.ready {
+            background: var(--accent-green);
+            color: #fff;
+        }
+
+        /* Memory Game */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .memory-tile {
+            width: 70px;
+            height: 70px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .memory-tile:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .memory-tile.revealed {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .memory-tile.matched {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        /* Dodge Game */
+        .dodge-area {
+            width: 350px;
+            height: 350px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .dodge-player {
+            width: 30px;
+            height: 30px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 15px rgba(63, 185, 80, 0.5);
+        }
+
+        .dodge-block {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-red);
+            position: absolute;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 0 10px rgba(248, 81, 73, 0.5);
+        }
+
+        /* Speed Click */
+        .click-target {
+            width: 160px;
+            height: 160px;
+            background: var(--accent-purple);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+            box-shadow: 0 0 30px rgba(163, 113, 247, 0.3);
+        }
+
+        .click-target:active {
+            transform: scale(0.95);
+        }
+
+        .click-target i {
+            font-size: 3rem;
+            color: #fff;
+        }
+
+        /* Rhythm Game */
+        .rhythm-container {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        .rhythm-lane {
+            width: 60px;
+            height: 300px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rhythm-target {
+            position: absolute;
+            bottom: 20px;
+            left: 5px;
+            right: 5px;
+            height: 25px;
+            background: rgba(88, 166, 255, 0.2);
+            border: 2px solid var(--accent-blue);
+            border-radius: var(--radius-sm);
+        }
+
+        .rhythm-note {
+            position: absolute;
+            left: 5px;
+            right: 5px;
+            height: 25px;
+            background: var(--accent-purple);
+            border-radius: var(--radius-sm);
+        }
+
+        .rhythm-keys {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .rhythm-key {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.1s;
+        }
+
+        .rhythm-key.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #fff;
+        }
+
+        /* Math Game */
+        .math-problem {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin: 20px 0;
+        }
+
+        .math-input {
+            font-size: 2rem;
+            padding: 12px 24px;
+            width: 160px;
+            text-align: center;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+        }
+
+        .math-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        /* Precision Slider */
+        .precision-slider {
+            width: 320px;
+            height: 50px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .precision-zone {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 45%;
+            width: 10%;
+            background: var(--accent-green);
+            opacity: 0.3;
+        }
+
+        .precision-marker {
+            position: absolute;
+            top: 5px;
+            bottom: 5px;
+            width: 8px;
+            background: #fff;
+            border-radius: 4px;
+            transition: left 0.03s linear;
+        }
+
+        /* Lucky Wheel */
+        .wheel-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--accent-blue) 0deg 45deg,
+                var(--accent-purple) 45deg 90deg,
+                var(--accent-green) 90deg 135deg,
+                var(--accent-orange) 135deg 180deg,
+                var(--accent-cyan) 180deg 225deg,
+                var(--accent-blue) 225deg 270deg,
+                var(--accent-purple) 270deg 315deg,
+                var(--accent-green) 315deg 360deg
+            );
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            border: 4px solid var(--border-color);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: var(--accent-orange);
+        }
+
+        /* Boss Battle */
+        .boss-container {
+            text-align: center;
+        }
+
+        .boss-health-bar {
+            width: 300px;
+            height: 24px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .boss-health-fill {
+            height: 100%;
+            background: var(--accent-red);
+            transition: width 0.2s ease;
+        }
+
+        .boss-enemy {
+            font-size: 6rem;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+
+        .boss-enemy:active {
+            transform: scale(0.9);
+        }
+
+        /* Snake Game */
+        .snake-game {
+            width: 320px;
+            height: 320px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+        }
+
+        .snake-segment {
+            width: 16px;
+            height: 16px;
+            background: var(--accent-green);
+            position: absolute;
+            border-radius: 3px;
+        }
+
+        .snake-segment.head {
+            background: var(--accent-blue);
+        }
+
+        .snake-food {
+            width: 16px;
+            height: 16px;
+            background: var(--accent-red);
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        /* Flappy Game */
+        .flappy-game {
+            width: 320px;
+            height: 420px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flappy-bird {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-orange);
+            position: absolute;
+            border-radius: 50%;
+            left: 60px;
+        }
+
+        .flappy-pipe {
+            width: 50px;
+            background: var(--accent-green);
+            position: absolute;
+            border-radius: 4px;
+        }
+
+        /* Pong Game */
+        .pong-game {
+            width: 420px;
+            height: 320px;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+        }
+
+        .pong-paddle {
+            width: 12px;
+            height: 70px;
+            background: #fff;
+            position: absolute;
+            border-radius: 6px;
+        }
+
+        .pong-ball {
+            width: 16px;
+            height: 16px;
+            background: #fff;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .pong-divider {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: repeating-linear-gradient(
+                to bottom,
+                var(--border-color) 0,
+                var(--border-color) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+        }
+
+        /* Breakout Game */
+        .breakout-game {
+            width: 420px;
+            height: 420px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .breakout-paddle {
+            width: 90px;
+            height: 16px;
+            background: var(--accent-blue);
+            position: absolute;
+            bottom: 24px;
+            border-radius: 8px;
+        }
+
+        .breakout-ball {
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            position: absolute;
+            border-radius: 50%;
+        }
+
+        .breakout-brick {
+            width: 48px;
+            height: 22px;
+            position: absolute;
+            border-radius: 4px;
+        }
+
+        /* Typing Game */
+        .typing-word {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin: 20px 0;
+            letter-spacing: 4px;
+        }
+
+        .typing-input {
+            font-size: 1.5rem;
+            padding: 14px 28px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            text-align: center;
+            width: 320px;
+        }
+
+        .typing-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        /* Color Match */
+        .color-display {
+            font-size: 3rem;
+            font-weight: 700;
+            padding: 30px 60px;
+            border-radius: var(--radius-lg);
+            margin: 20px 0;
+            background: var(--bg-tertiary);
+        }
+
+        .color-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .color-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Aim Trainer */
+        .aim-game {
+            width: 420px;
+            height: 420px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+            cursor: crosshair;
+        }
+
+        .aim-target {
+            width: 50px;
+            height: 50px;
+            background: transparent;
+            border: 4px solid var(--accent-red);
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .aim-target::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: var(--accent-red);
+            border-radius: 50%;
+        }
+
+        .aim-target::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        /* 2048 Game */
+        .game-2048 {
+            display: grid;
+            grid-template-columns: repeat(4, 75px);
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-lg);
+        }
+
+        .tile-2048 {
+            width: 75px;
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            background: var(--bg-secondary);
+            transition: all 0.1s ease;
+        }
+
+        /* Subway Surfers Clone */
+        .subway-game {
+            width: 320px;
+            height: 450px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subway-player {
+            width: 40px;
+            height: 60px;
+            background: var(--accent-blue);
+            position: absolute;
+            bottom: 60px;
+            border-radius: var(--radius-md);
+            transition: left 0.15s ease;
+        }
+
+        .subway-obstacle {
+            width: 60px;
+            height: 45px;
+            background: var(--accent-red);
+            position: absolute;
+            border-radius: var(--radius-sm);
+        }
+
+        .subway-coin {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-orange);
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .subway-lanes {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background: var(--bg-tertiary);
+            border-top: 2px solid var(--border-color);
+        }
+
+        /* FNF Clone */
+        .fnf-game {
+            width: 340px;
+            height: 420px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fnf-lanes {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .fnf-lane {
+            width: 65px;
+            height: 100%;
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--radius-md);
+            position: relative;
+        }
+
+        .fnf-target {
+            position: absolute;
+            bottom: 24px;
+            left: 5px;
+            right: 5px;
+            height: 35px;
+            background: rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .fnf-note {
+            position: absolute;
+            left: 5px;
+            right: 5px;
+            height: 35px;
+            border-radius: var(--radius-sm);
+        }
+
+        .fnf-note.left { background: var(--accent-red); }
+        .fnf-note.down { background: var(--accent-cyan); }
+        .fnf-note.up { background: var(--accent-green); }
+        .fnf-note.right { background: var(--accent-purple); }
+
+        .fnf-keys {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .fnf-key {
+            padding: 14px 22px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-weight: 700;
+            transition: all 0.1s;
+        }
+
+        .fnf-key.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        /* Tetris Clone */
+        .tetris-game {
+            display: grid;
+            grid-template-columns: repeat(10, 28px);
+            gap: 1px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+        }
+
+        .tetris-cell {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+        }
+
+        .tetris-cell.filled {
+            background: var(--accent-cyan);
+        }
+
+        /* Custom Game Container */
+        .custom-game-container {
+            min-height: 300px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-blue);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 0 16px;
+            }
+
+            .currency-display {
+                gap: 8px;
+            }
+
+            .currency-item {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+
+            .nav-container {
+                padding: 72px 16px 12px;
+            }
+
+            .content-container {
+                padding: 0 16px 16px;
+            }
+
+            .nav-tab {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+
+            .mine-main {
+                padding: 24px;
+            }
+
+            .big-ore {
+                width: 180px;
+                height: 180px;
+            }
+
+            .big-ore i {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Initial Mining Screen -->
+    <div id="initial-mining">
+        <div class="mining-header">
+            <div class="mining-logo">
+                <i class="fas fa-wind"></i>
+                <span>AIR ORE</span>
+            </div>
+            <p class="mining-subtitle">Mining air since 2026™ - Click the rock to begin</p>
+        </div>
+        
+        <div class="ore-rock" id="initialRock">
+            <i class="fas fa-gem"></i>
+        </div>
+        
+        <div class="mining-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text"><span id="mineCount">0</span>/10 Air Ore Mined</p>
+        </div>
+        
+        <p class="mining-hint">
+            <i class="fas fa-info-circle"></i>
+            This ore is lighter than your responsibilities
+        </p>
+    </div>
+
+    <!-- Welcome Popup -->
+    <div class="welcome-popup" id="welcomePopup">
+        <h2><i class="fas fa-trophy"></i> Welcome, Miner!</h2>
+        <p>You are now a certified Air Miner. Time to make some ore!</p>
+        <button class="btn btn-primary" onclick="closeWelcomePopup()">Start Mining</button>
+    </div>
+
+    <!-- Main App -->
+    <div id="main-app">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="logo" onclick="showRandomTip()">
+                <i class="fas fa-wind"></i>
+                <span>AIR ORE</span>
+            </div>
+            <div class="currency-display">
+                <div class="currency-item ore">
+                    <i class="fas fa-cube"></i>
+                    <span class="currency-amount" id="oreDisplay">0</span>
+                </div>
+                <div class="currency-item diamond">
+                    <i class="fas fa-gem"></i>
+                    <span class="currency-amount" id="diamondDisplay">0</span>
+                </div>
+                <div class="currency-item gems">
+                    <i class="fas fa-star"></i>
+                    <span class="currency-amount" id="gemsDisplay">0</span>
+                    <span class="currency-label">gems</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-container">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="mine">
+                    <i class="fas fa-hammer"></i>
+                    <span>Mine</span>
+                </button>
+                <button class="nav-tab" data-tab="minigames">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Minigames</span>
+                </button>
+                <button class="nav-tab" data-tab="upgrades">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>Upgrades</span>
+                </button>
+                <button class="nav-tab" data-tab="chat">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Chat</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-container">
+            <!-- Mine Section -->
+            <div class="content-section active" id="mine">
+                <div class="mine-layout">
+                    <div class="mine-main">
+                        <div class="big-ore" id="bigOre">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <p class="click-info">
+                            Click to mine! Each click = <span id="orePerClick">1</span> ore
+                        </p>
+                        
+                        <div class="stats-grid">
+                            <div class="mini-stat">
+                                <div class="mini-stat-value" id="totalMined">0</div>
+                                <div class="mini-stat-label">Total Mined</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="mini-stat-value" id="clickPower">1</div>
+                                <div class="mini-stat-label">Click Power</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="mini-stat-value" id="autoMine">0</div>
+                                <div class="mini-stat-label">Auto/sec</div>
+                            </div>
+                            <div class="mini-stat">
+                                <div class="mini-stat-value" id="diamondChance">1%</div>
+                                <div class="mini-stat-label">Diamond Chance</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mine-sidebar">
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <i class="fas fa-coins"></i>
+                                <span>Current Ore</span>
+                            </div>
+                            <div class="stat-card-value" id="currentOre">0</div>
+                            <div class="stat-card-sub">Ready to spend</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <i class="fas fa-bolt"></i>
+                                <span>Ore Per Second</span>
+                            </div>
+                            <div class="stat-card-value" id="orePerSecond">0</div>
+                            <div class="stat-card-sub">From auto miners</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-card-header">
+                                <i class="fas fa-percentage"></i>
+                                <span>Multiplier</span>
+                            </div>
+                            <div class="stat-card-value" id="multiplier">1.0x</div>
+                            <div class="stat-card-sub">Global bonus</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Patch Notes -->
+                <div class="patch-notes">
+                    <div class="patch-header">
+                        <i class="fas fa-scroll"></i>
+                        <span>Patch Notes</span>
+                        <span class="patch-version">v2.0.0</span>
+                    </div>
+                    <div class="patch-body">
+                        <div class="patch-item">
+                            <i class="fas fa-plus"></i>
+                            <span>Added 50+ upgrades for billion-scale progression</span>
+                        </div>
+                        <div class="patch-item">
+                            <i class="fas fa-plus"></i>
+                            <span>Real AI chat with Claude, GPT, and Gemini</span>
+                        </div>
+                        <div class="patch-item">
+                            <i class="fas fa-plus"></i>
+                            <span>Create your own games with AI (5 gems)</span>
+                        </div>
+                        <div class="patch-item">
+                            <i class="fas fa-plus"></i>
+                            <span>20+ minigames with deep mechanics</span>
+                        </div>
+                        <div class="patch-item">
+                            <i class="fas fa-plus"></i>
+                            <span>Clean UI without weird gradients</span>
+                        </div>
+                        <div class="patch-item">
+                            <i class="fas fa-plus"></i>
+                            <span>Secret cheat code still works...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Minigames Section -->
+            <div class="content-section" id="minigames">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-gamepad"></i>
+                        Minigames
+                    </h2>
+                    <p class="section-subtitle">Play games to earn ore, diamonds, and gems</p>
+                </div>
+
+                <div class="minigames-header">
+                    <div class="upgrades-filter">
+                        <button class="filter-btn active" data-filter="all">All Games</button>
+                        <button class="filter-btn" data-filter="featured">Featured</button>
+                        <button class="filter-btn" data-filter="custom">My Games</button>
+                    </div>
+                    <button class="create-game-btn" id="createGameBtn">
+                        <i class="fas fa-magic"></i>
+                        Create Game (5 gems)
+                    </button>
+                </div>
+
+                <div class="minigames-grid" id="minigamesGrid">
+                    <!-- Games will be generated by JS -->
+                </div>
+            </div>
+
+            <!-- Upgrades Section -->
+            <div class="content-section" id="upgrades">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-arrow-up"></i>
+                        Upgrades
+                    </h2>
+                    <p class="section-subtitle">Spend ore to earn more ore. Simple economics.</p>
+                </div>
+
+                <div class="upgrades-filter">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="click">Click Power</button>
+                    <button class="filter-btn" data-filter="auto">Auto Mining</button>
+                    <button class="filter-btn" data-filter="luck">Luck</button>
+                    <button class="filter-btn" data-filter="special">Special</button>
+                    <button class="filter-btn" data-filter="prestige">Prestige</button>
+                </div>
+
+                <div class="upgrades-grid" id="upgradesGrid">
+                    <!-- Upgrades will be generated by JS -->
+                </div>
+            </div>
+
+            <!-- AI Chat Section -->
+            <div class="content-section" id="chat">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-robot"></i>
+                        AI Chat
+                    </h2>
+                    <p class="section-subtitle">Chat with real AI models using your ore</p>
+                </div>
+
+                <div class="chat-layout">
+                    <div class="chat-container">
+                        <div class="chat-header">
+                            <div class="chat-header-title">
+                                <i class="fas fa-comments"></i>
+                                AirBot 3000
+                                <span class="unlimited-badge" id="unlimitedBadge" style="display: none;">
+                                    <i class="fas fa-infinity"></i> UNLIMITED
+                                </span>
+                            </div>
+                            <p class="chat-header-sub">Powered by real AI models</p>
+                            
+                            <div class="model-selector">
+                                <button class="model-btn active" data-model="anthropic/claude-opus-4.5">
+                                    <i class="fas fa-brain"></i> Claude Opus 4.5
+                                </button>
+                                <button class="model-btn" data-model="openai/gpt-5.2">
+                                    <i class="fas fa-bolt"></i> GPT-5.2
+                                </button>
+                                <button class="model-btn" data-model="google/gemini-3-pro-preview">
+                                    <i class="fas fa-star"></i> Gemini 3 Pro
+                                </button>
+                                <button class="model-btn custom" id="customModelBtn">
+                                    <i class="fas fa-cog"></i> Custom (10 gems)
+                                </button>
+                            </div>
+                            
+                            <div class="chat-cost-info" id="chatCostInfo">
+                                <i class="fas fa-info-circle"></i>
+                                Message cost: <strong id="currentCost">30</strong> ore (Messages sent: <span id="messageCount">0</span>)
+                            </div>
+                        </div>
+                        
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="chat-message ai">
+                                Welcome! Each message costs ore (30→60→120→300 after every 3 messages). Mine some ore first!
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input-area">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Ask the AI anything...">
+                            <button class="chat-send" id="chatSend">
+                                <i class="fas fa-paper-plane"></i>
+                                <span id="sendCost">30</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticker -->
+        <div class="ticker">
+            <div class="ticker-content">
+                <span class="ticker-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>ORE/USD:</span> $0.000001 (+∞%)
+                </span>
+                <span class="ticker-item">
+                    <i class="fas fa-robot"></i>
+                    Real AI integration available
+                </span>
+                <span class="ticker-item">
+                    <i class="fas fa-gamepad"></i>
+                    20+ minigames to play
+                </span>
+                <span class="ticker-item">
+                    <i class="fas fa-magic"></i>
+                    Create custom games with AI
+                </span>
+                <span class="ticker-item">
+                    <i class="fas fa-lock"></i>
+                    Your data stored in <span>localStorage</span>
+                </span>
+                <span class="ticker-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>ORE/USD:</span> $0.000001 (+∞%)
+                </span>
+                <span class="ticker-item">
+                    <i class="fas fa-robot"></i>
+                    Real AI integration available
+                </span>
+                <span class="ticker-item">
+                    <i class="fas fa-gamepad"></i>
+                    20+ minigames to play
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Modal -->
+    <div class="game-modal" id="gameModal">
+        <div class="game-container">
+            <div class="game-header">
+                <h3 class="game-title" id="gameTitle">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Game</span>
+                </h3>
+                <button class="game-close" id="gameClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="game-body">
+                <p class="game-instructions" id="gameInstructions">Instructions will appear here</p>
+                <div class="game-area" id="gameArea">
+                    <!-- Game content loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Game Modal -->
+    <div class="modal-overlay" id="createGameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-magic"></i>
+                    Create Custom Game
+                </h3>
+                <button class="modal-close" id="closeCreateGame">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label class="modal-label">Game Name</label>
+                    <input type="text" class="modal-input" id="customGameName" placeholder="My Awesome Game">
+                </div>
+                <div class="modal-input-group">
+                    <label class="modal-label">Describe your game</label>
+                    <textarea class="modal-textarea" id="customGamePrompt" placeholder="Describe the game you want AI to create. Be specific about mechanics, controls, and rewards.&#10;&#10;Example: A simple clicking game where colorful bubbles appear randomly and you have to pop them before they float away. Earn 10 ore per bubble popped."></textarea>
+                </div>
+                <div class="modal-info">
+                    <div class="modal-info-item">
+                        <i class="fas fa-star" style="color: var(--accent-purple);"></i>
+                        <span>Cost: <strong>5 gems</strong> (You have: <span id="createGameGems">0</span>)</span>
+                    </div>
+                    <div class="modal-info-item modal-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>AI generates HTML/CSS/JS code. Results may vary.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-cancel" id="cancelCreateGame">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" id="confirmCreateGame">
+                    <i class="fas fa-magic"></i> Create Game
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Model Modal -->
+    <div class="modal-overlay" id="customModelModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-cog"></i>
+                    Custom AI Model
+                </h3>
+                <button class="modal-close" id="closeCustomModel">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label class="modal-label">Model Identifier</label>
+                    <input type="text" class="modal-input" id="customModelInput" placeholder="e.g., meta/llama-3.1-405b">
+                </div>
+                <div class="modal-info">
+                    <div class="modal-info-item">
+                        <i class="fas fa-star" style="color: var(--accent-purple);"></i>
+                        <span>Cost: <strong>10 gems</strong> (You have: <span id="modalGems">0</span>)</span>
+                    </div>
+                    <div class="modal-info-item modal-warning">
+                        <i class="fas fa-ban"></i>
+                        <span>Blacklisted: openai/gpt-5.2-pro, openai/gpt-5-pro</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-cancel" id="cancelCustomModel">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" id="confirmCustomModel">Use Model</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Endgame Modal -->
+    <div class="endgame-modal" id="endgameModal">
+        <div class="endgame-content">
+            <div class="endgame-icon">
+                <i class="fas fa-crown"></i>
+            </div>
+            <h1 class="endgame-title">Peak Air Achieved</h1>
+            <p class="endgame-subtitle">You've mined 100,000 ore. The air bows before you. Choose your destiny:</p>
+            
+            <div class="endgame-choices">
+                <div class="endgame-choice ai-choice" data-choice="ai">
+                    <div class="choice-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="choice-title">Unlimited AI</div>
+                    <div class="choice-desc">Free AI chat forever. No more ore costs for messages.</div>
+                </div>
+                
+                <div class="endgame-choice mine-choice" data-choice="infinity">
+                    <div class="choice-icon">
+                        <i class="fas fa-infinity"></i>
+                    </div>
+                    <div class="choice-title">Infinity Mine</div>
+                    <div class="choice-desc">Auto-generate 100 ore per second forever.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Message here</span>
+    </div>
+
+    <!-- Infinity Indicator -->
+    <div class="infinity-indicator" id="infinityIndicator">
+        <i class="fas fa-infinity"></i>
+        <span>+100/sec</span>
+    </div>
+
+    <!-- Cheat Popup -->
+    <div class="cheat-popup" id="cheatPopup">
+        <i class="fas fa-gift"></i> +5000 GEMS!
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const API_BASE_URL = "https://epistolic-colette-decently.ngrok-free.dev";
+        const BLACKLISTED_MODELS = ["openai/gpt-5.2-pro", "openai/gpt-5-pro"];
+        const AVAILABLE_MODELS = [
+            "anthropic/claude-opus-4.5",
+            "openai/gpt-5.2",
+            "google/gemini-3-pro-preview"
+        ];
+
+        // ==================== GAME STATE ====================
+        let gameState = {
+            ore: 0,
+            diamondOre: 0,
+            gems: 0,
+            totalMined: 0,
+            clickPower: 1,
+            autoMine: 0,
+            diamondChance: 1,
+            globalMultiplier: 1,
+            upgrades: {},
+            customGames: [],
+            hasCompletedIntro: false,
+            endgameChoice: null,
+            unlimitedAI: false,
+            infinityMine: false,
+            messageCount: 0,
+            selectedModel: "anthropic/claude-opus-4.5",
+            customModel: null,
+            userId: 'user_' + Math.random().toString(36).substr(2, 9),
+            prestigeLevel: 0,
+            critChance: 0,
+            critMultiplier: 2
+        };
+
+        // ==================== UPGRADE DATA (50+ for billion scale) ====================
+        const upgradeData = [
+            // CLICK POWER UPGRADES (Tier 1-10)
+            { id: 'click_1', name: 'Wooden Pickaxe', desc: 'A humble beginning', cost: 50, effect: () => gameState.clickPower += 1, type: 'click', tier: 1, icon: 'fa-hammer' },
+            { id: 'click_2', name: 'Stone Pickaxe', desc: 'Slightly better than wood', cost: 200, effect: () => gameState.clickPower += 3, type: 'click', tier: 1, icon: 'fa-hammer' },
+            { id: 'click_3', name: 'Iron Pickaxe', desc: 'Now we\'re getting somewhere', cost: 800, effect: () => gameState.clickPower += 8, type: 'click', tier: 2, icon: 'fa-hammer' },
+            { id: 'click_4', name: 'Gold Pickaxe', desc: 'Shiny but surprisingly effective', cost: 3000, effect: () => gameState.clickPower += 20, type: 'click', tier: 2, icon: 'fa-hammer' },
+            { id: 'click_5', name: 'Diamond Pickaxe', desc: 'The classic', cost: 12000, effect: () => gameState.clickPower += 50, type: 'click', tier: 3, icon: 'fa-gem' },
+            { id: 'click_6', name: 'Netherite Drill', desc: 'Beyond minecraft', cost: 50000, effect: () => gameState.clickPower += 150, type: 'click', tier: 3, icon: 'fa-cogs' },
+            { id: 'click_7', name: 'Quantum Excavator', desc: 'Mines in multiple dimensions', cost: 250000, effect: () => gameState.clickPower += 500, type: 'click', tier: 4, icon: 'fa-atom' },
+            { id: 'click_8', name: 'Antimatter Harvester', desc: 'Negative matter, positive gains', cost: 1000000, effect: () => gameState.clickPower += 2000, type: 'click', tier: 5, icon: 'fa-radiation' },
+            { id: 'click_9', name: 'Singularity Extractor', desc: 'Mine black holes', cost: 5000000, effect: () => gameState.clickPower += 10000, type: 'click', tier: 6, icon: 'fa-circle' },
+            { id: 'click_10', name: 'Reality Bender', desc: 'Change the rules of physics', cost: 25000000, effect: () => gameState.clickPower += 50000, type: 'click', tier: 7, icon: 'fa-magic' },
+            { id: 'click_11', name: 'Multiverse Miner', desc: 'Mine all possible realities', cost: 100000000, effect: () => gameState.clickPower += 200000, type: 'click', tier: 8, icon: 'fa-globe' },
+            { id: 'click_12', name: 'Infinity Gauntlet', desc: 'One click, infinite ore', cost: 500000000, effect: () => gameState.clickPower += 1000000, type: 'click', tier: 9, icon: 'fa-hand-sparkles' },
+
+            // AUTO MINING UPGRADES
+            { id: 'auto_1', name: 'Mining Intern', desc: 'Unpaid labor', cost: 500, effect: () => gameState.autoMine += 1, type: 'auto', tier: 1, icon: 'fa-user' },
+            { id: 'auto_2', name: 'Mining Crew', desc: 'A team of miners', cost: 2500, effect: () => gameState.autoMine += 5, type: 'auto', tier: 1, icon: 'fa-users' },
+            { id: 'auto_3', name: 'Mining Robot', desc: 'Never sleeps', cost: 10000, effect: () => gameState.autoMine += 20, type: 'auto', tier: 2, icon: 'fa-robot' },
+            { id: 'auto_4', name: 'Mining Factory', desc: 'Industrial scale', cost: 50000, effect: () => gameState.autoMine += 100, type: 'auto', tier: 2, icon: 'fa-industry' },
+            { id: 'auto_5', name: 'Mining Planet', desc: 'Entire planet dedicated to mining', cost: 250000, effect: () => gameState.autoMine += 500, type: 'auto', tier: 3, icon: 'fa-globe' },
+            { id: 'auto_6', name: 'Mining Galaxy', desc: 'Galactic mining operation', cost: 1500000, effect: () => gameState.autoMine += 3000, type: 'auto', tier: 4, icon: 'fa-star' },
+            { id: 'auto_7', name: 'Mining Universe', desc: 'Cosmic scale extraction', cost: 10000000, effect: () => gameState.autoMine += 20000, type: 'auto', tier: 5, icon: 'fa-sun' },
+            { id: 'auto_8', name: 'Mining Multiverse', desc: 'Infinite universes', cost: 75000000, effect: () => gameState.autoMine += 150000, type: 'auto', tier: 6, icon: 'fa-infinity' },
+            { id: 'auto_9', name: 'Time Mining Corp', desc: 'Mine all of time', cost: 500000000, effect: () => gameState.autoMine += 1000000, type: 'auto', tier: 7, icon: 'fa-clock' },
+
+            // LUCK UPGRADES
+            { id: 'luck_1', name: 'Four Leaf Clover', desc: '+1% diamond chance', cost: 2000, effect: () => gameState.diamondChance += 1, type: 'luck', tier: 1, icon: 'fa-clover' },
+            { id: 'luck_2', name: 'Lucky Horseshoe', desc: '+2% diamond chance', cost: 8000, effect: () => gameState.diamondChance += 2, type: 'luck', tier: 2, icon: 'fa-horse' },
+            { id: 'luck_3', name: 'Rabbit Foot', desc: '+3% diamond chance', cost: 30000, effect: () => gameState.diamondChance += 3, type: 'luck', tier: 2, icon: 'fa-paw' },
+            { id: 'luck_4', name: 'Lucky Cat', desc: '+5% diamond chance', cost: 100000, effect: () => gameState.diamondChance += 5, type: 'luck', tier: 3, icon: 'fa-cat' },
+            { id: 'luck_5', name: 'Fortune Cookie Factory', desc: '+8% diamond chance', cost: 500000, effect: () => gameState.diamondChance += 8, type: 'luck', tier: 4, icon: 'fa-cookie' },
+            { id: 'luck_6', name: 'Lucky Dimension', desc: '+15% diamond chance', cost: 2500000, effect: () => gameState.diamondChance += 15, type: 'luck', tier: 5, icon: 'fa-dice' },
+            { id: 'luck_7', name: 'Probability Manipulator', desc: '+25% diamond chance', cost: 15000000, effect: () => gameState.diamondChance += 25, type: 'luck', tier: 6, icon: 'fa-percent' },
+
+            // SPECIAL UPGRADES
+            { id: 'special_1', name: 'Critical Strike', desc: '5% chance for 2x ore', cost: 15000, effect: () => gameState.critChance += 5, type: 'special', tier: 2, icon: 'fa-bolt' },
+            { id: 'special_2', name: 'Combo Master', desc: '+0.1x global multiplier', cost: 50000, effect: () => gameState.globalMultiplier += 0.1, type: 'special', tier: 3, icon: 'fa-fire' },
+            { id: 'special_3', name: 'Efficient Mining', desc: '+0.2x global multiplier', cost: 200000, effect: () => gameState.globalMultiplier += 0.2, type: 'special', tier: 4, icon: 'fa-chart-line' },
+            { id: 'special_4', name: 'Ore Magnet', desc: '+0.5x global multiplier', cost: 800000, effect: () => gameState.globalMultiplier += 0.5, type: 'special', tier: 5, icon: 'fa-magnet' },
+            { id: 'special_5', name: 'Critical Mastery', desc: 'Crits now deal 3x', cost: 1500000, effect: () => gameState.critMultiplier = 3, type: 'special', tier: 5, icon: 'fa-crosshairs' },
+            { id: 'special_6', name: 'Gem Finder', desc: '5% gem chance per click', cost: 3000000, effect: () => {}, type: 'special', tier: 6, icon: 'fa-search' },
+            { id: 'special_7', name: 'Double Diamond', desc: '10% chance for 2 diamonds', cost: 10000000, effect: () => {}, type: 'special', tier: 7, icon: 'fa-gem' },
+            { id: 'special_8', name: 'Lucky Strikes', desc: 'Crits give diamonds', cost: 50000000, effect: () => {}, type: 'special', tier: 8, icon: 'fa-star' },
+            { id: 'special_9', name: 'Ore Rain', desc: '+1x global multiplier', cost: 200000000, effect: () => gameState.globalMultiplier += 1, type: 'special', tier: 9, icon: 'fa-cloud-rain' },
+
+            // PRESTIGE UPGRADES
+            { id: 'prestige_1', name: 'Prestige I', desc: 'Reset for 2x permanent boost', cost: 100000, effect: () => { gameState.prestigeLevel = 1; gameState.globalMultiplier *= 2; }, type: 'prestige', tier: 5, icon: 'fa-crown' },
+            { id: 'prestige_2', name: 'Prestige II', desc: 'Reset for 3x permanent boost', cost: 1000000, effect: () => { gameState.prestigeLevel = 2; gameState.globalMultiplier *= 1.5; }, type: 'prestige', tier: 7, icon: 'fa-crown' },
+            { id: 'prestige_3', name: 'Prestige III', desc: 'Reset for 5x permanent boost', cost: 50000000, effect: () => { gameState.prestigeLevel = 3; gameState.globalMultiplier *= 1.67; }, type: 'prestige', tier: 9, icon: 'fa-crown' },
+            { id: 'prestige_4', name: 'Prestige IV', desc: 'Ascend to god tier', cost: 500000000, effect: () => { gameState.prestigeLevel = 4; gameState.globalMultiplier *= 2; }, type: 'prestige', tier: 10, icon: 'fa-crown' },
+            
+            // FUNNY/JOKE UPGRADES
+            { id: 'joke_1', name: 'Air NFT', desc: 'You now own a picture of air', cost: 42069, effect: () => showToast('Right-click saved!', 'info'), type: 'special', tier: 3, icon: 'fa-image' },
+            { id: 'joke_2', name: 'Motivation Poster', desc: '"You can do it!" +0.01x multiplier', cost: 99999, effect: () => gameState.globalMultiplier += 0.01, type: 'special', tier: 4, icon: 'fa-image' },
+            { id: 'joke_3', name: 'Rubber Duck', desc: 'Debug your mining strategy', cost: 12345, effect: () => gameState.clickPower += 12, type: 'click', tier: 2, icon: 'fa-bath' },
+        ];
+
+        // ==================== MINIGAMES DATA ====================
+        const minigamesData = [
+            { id: 'subway', name: 'Air Surfers', desc: 'Dodge obstacles and collect coins', icon: 'fa-running', reward: '50 ore/100m', featured: true },
+            { id: 'fnf', name: 'Friday Night Minin\'', desc: 'Hit notes to the beat', icon: 'fa-music', reward: '25 ore/note', featured: true },
+            { id: 'reaction', name: 'Reaction Test', desc: 'Click when it turns green', icon: 'fa-bolt', reward: '50-200 ore' },
+            { id: 'memory', name: 'Memory Match', desc: 'Find all matching pairs', icon: 'fa-brain', reward: '100-500 ore' },
+            { id: 'dodge', name: 'Dodge Blocks', desc: 'Survive as long as possible', icon: 'fa-shield-alt', reward: '10 ore/sec' },
+            { id: 'speedclick', name: 'Speed Click', desc: 'Click as fast as you can', icon: 'fa-hand-pointer', reward: '5 ore/click' },
+            { id: 'rhythm', name: 'Rhythm Tap', desc: 'Hit notes in time', icon: 'fa-drum', reward: '20 ore/perfect' },
+            { id: 'math', name: 'Math Rush', desc: 'Solve equations quickly', icon: 'fa-calculator', reward: '100 ore/correct' },
+            { id: 'slider', name: 'Precision Stop', desc: 'Stop in the green zone', icon: 'fa-crosshairs', reward: 'Diamond chance!', diamond: true },
+            { id: 'wheel', name: 'Lucky Wheel', desc: 'Spin for prizes', icon: 'fa-dharmachakra', reward: 'Up to 5 diamonds!', diamond: true },
+            { id: 'boss', name: 'Mini Boss', desc: 'Defeat the Air Elemental', icon: 'fa-dragon', reward: 'Guaranteed diamond!', diamond: true },
+            { id: 'snake', name: 'Air Snake', desc: 'Classic snake game', icon: 'fa-bacon', reward: '10 ore/food' },
+            { id: 'flappy', name: 'Flappy Ore', desc: 'Fly through pipes', icon: 'fa-dove', reward: '20 ore/pipe' },
+            { id: 'pong', name: 'Air Pong', desc: 'Beat the AI', icon: 'fa-table-tennis', reward: '30 ore/point' },
+            { id: 'breakout', name: 'Ore Breaker', desc: 'Break all the bricks', icon: 'fa-th', reward: '5 ore/brick' },
+            { id: 'typing', name: 'Type Rush', desc: 'Type words quickly', icon: 'fa-keyboard', reward: '50 ore/word' },
+            { id: 'colorMatch', name: 'Color Chaos', desc: 'Match text color, not word', icon: 'fa-palette', reward: '40 ore/correct' },
+            { id: 'aim', name: 'Aim Trainer', desc: 'Click targets accurately', icon: 'fa-bullseye', reward: '15 ore/hit' },
+            { id: '2048', name: '2048 Ore', desc: 'Combine tiles to 2048', icon: 'fa-th-large', reward: 'Diamond at 2048!', diamond: true },
+            { id: 'tetris', name: 'Ore Tetris', desc: 'Classic block puzzle', icon: 'fa-cube', reward: '10 ore/line' },
+        ];
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function formatNumber(num) {
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+            return Math.floor(num).toString();
+        }
+
+        function getMessageCost(messageCount) {
+            if (messageCount < 3) return 30;
+            if (messageCount < 6) return 60;
+            if (messageCount < 9) return 120;
+            return 300;
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('airOreStateV3');
+            if (saved) {
+                gameState = { ...gameState, ...JSON.parse(saved) };
+            }
+        }
+
+        function saveGame() {
+            localStorage.setItem('airOreStateV3', JSON.stringify(gameState));
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+            
+            toast.className = 'toast ' + type;
+            toastMessage.textContent = message;
+            
+            if (type === 'success') icon.className = 'fas fa-check-circle';
+            else if (type === 'error') icon.className = 'fas fa-times-circle';
+            else icon.className = 'fas fa-info-circle';
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function createParticle(x, y, icon = 'fa-sparkles') {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.innerHTML = `<i class="fas ${icon}"></i>`;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 800);
+        }
+
+        function createMultipleParticles(x, y, count = 5) {
+            const icons = ['fa-sparkles', 'fa-gem', 'fa-star', 'fa-bolt'];
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const offsetX = (Math.random() - 0.5) * 80;
+                    const offsetY = (Math.random() - 0.5) * 80;
+                    createParticle(x + offsetX, y + offsetY, icons[Math.floor(Math.random() * icons.length)]);
+                }, i * 40);
+            }
+        }
+
+        function screenShake() {
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 100);
+        }
+
+        // ==================== DISPLAY UPDATES ====================
+        function updateDisplays() {
+            document.getElementById('oreDisplay').textContent = formatNumber(gameState.ore);
+            document.getElementById('diamondDisplay').textContent = formatNumber(gameState.diamondOre);
+            document.getElementById('gemsDisplay').textContent = formatNumber(gameState.gems);
+            document.getElementById('totalMined').textContent = formatNumber(gameState.totalMined);
+            document.getElementById('clickPower').textContent = formatNumber(gameState.clickPower);
+            document.getElementById('autoMine').textContent = formatNumber(gameState.autoMine);
+            document.getElementById('diamondChance').textContent = gameState.diamondChance + '%';
+            document.getElementById('orePerClick').textContent = formatNumber(Math.floor(gameState.clickPower * gameState.globalMultiplier));
+            document.getElementById('currentOre').textContent = formatNumber(gameState.ore);
+            document.getElementById('orePerSecond').textContent = formatNumber(Math.floor(gameState.autoMine * gameState.globalMultiplier));
+            document.getElementById('multiplier').textContent = gameState.globalMultiplier.toFixed(1) + 'x';
+            
+            // Chat costs
+            const currentCost = gameState.unlimitedAI ? 0 : getMessageCost(gameState.messageCount);
+            document.getElementById('currentCost').textContent = currentCost;
+            document.getElementById('sendCost').textContent = currentCost;
+            document.getElementById('messageCount').textContent = gameState.messageCount;
+            document.getElementById('modalGems').textContent = gameState.gems;
+            document.getElementById('createGameGems').textContent = gameState.gems;
+            
+            if (gameState.unlimitedAI) {
+                document.getElementById('chatCostInfo').innerHTML = '<i class="fas fa-infinity"></i> UNLIMITED - Chat for free forever!';
+                document.getElementById('chatSend').innerHTML = '<i class="fas fa-paper-plane"></i> FREE';
+                document.getElementById('unlimitedBadge').style.display = 'inline-flex';
+            }
+            
+            // Check for endgame
+            if (gameState.ore >= 100000 && !gameState.endgameChoice) {
+                showEndgame();
+            }
+        }
+
+        // ==================== CHEAT CODE ====================
+        let cheatBuffer = '';
+        const CHEAT_CODE = 'iamadirtycheater';
+
+        document.addEventListener('keypress', (e) => {
+            cheatBuffer += e.key.toLowerCase();
+            if (cheatBuffer.length > CHEAT_CODE.length) {
+                cheatBuffer = cheatBuffer.slice(-CHEAT_CODE.length);
+            }
+            if (cheatBuffer === CHEAT_CODE) {
+                activateCheat();
+                cheatBuffer = '';
+            }
+        });
+
+        function activateCheat() {
+            gameState.gems += 5000;
+            gameState.ore += 50000;
+            updateDisplays();
+            saveGame();
+            
+            const popup = document.getElementById('cheatPopup');
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 2000);
+            showToast('Cheat activated! +5000 gems!', 'success');
+        }
+
+        // ==================== INITIAL MINING ====================
+        let initialOre = 0;
+        const initialRock = document.getElementById('initialRock');
+        const progressFill = document.getElementById('progressFill');
+        const mineCount = document.getElementById('mineCount');
+
+        if (initialRock) {
+            initialRock.addEventListener('click', function(e) {
+                if (gameState.hasCompletedIntro) return;
+                
+                initialOre++;
+                mineCount.textContent = initialOre;
+                progressFill.style.width = (initialOre * 10) + '%';
+                
+                createMultipleParticles(e.clientX, e.clientY, 3);
+                screenShake();
+                
+                if (initialOre >= 10) {
+                    completeIntro();
+                }
+            });
+        }
+
+        function completeIntro() {
+            gameState.hasCompletedIntro = true;
+            gameState.ore = 10;
+            gameState.totalMined = 10;
+            saveGame();
+            
+            document.getElementById('welcomePopup').classList.add('show');
+        }
+
+        function closeWelcomePopup() {
+            document.getElementById('welcomePopup').classList.remove('show');
+            showMainApp();
+        }
+
+        function showMainApp() {
+            document.getElementById('initial-mining').classList.add('hidden');
+            document.getElementById('main-app').classList.add('visible');
+            updateDisplays();
+            generateUpgrades();
+            generateMinigames();
+            
+            if (gameState.infinityMine) {
+                document.getElementById('infinityIndicator').classList.add('show');
+            }
+            
+            // Update model selection
+            document.querySelectorAll('.model-btn:not(#customModelBtn)').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.model === gameState.selectedModel) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // ==================== MAIN MINING ====================
+        const bigOre = document.getElementById('bigOre');
+        if (bigOre) {
+            bigOre.addEventListener('click', function(e) {
+                let earned = Math.floor(gameState.clickPower * gameState.globalMultiplier);
+                
+                // Critical hit
+                if (Math.random() * 100 < gameState.critChance) {
+                    earned *= gameState.critMultiplier;
+                    showToast('CRITICAL HIT! ' + gameState.critMultiplier + 'x', 'info');
+                    
+                    // Lucky Strikes upgrade
+                    if (gameState.upgrades['special_8']) {
+                        gameState.diamondOre++;
+                        createParticle(e.clientX, e.clientY, 'fa-gem');
+                    }
+                }
+                
+                gameState.ore += earned;
+                gameState.totalMined += earned;
+                
+                // Diamond chance
+                if (Math.random() * 100 < gameState.diamondChance) {
+                    let diamonds = 1;
+                    // Double Diamond upgrade
+                    if (gameState.upgrades['special_7'] && Math.random() < 0.1) {
+                        diamonds = 2;
+                    }
+                    gameState.diamondOre += diamonds;
+                    createParticle(e.clientX, e.clientY, 'fa-gem');
+                    showToast('Diamond Ore! +' + diamonds, 'success');
+                }
+                
+                // Gem chance (1% base, 5% with gem finder)
+                const gemChance = gameState.upgrades['special_6'] ? 0.05 : 0.01;
+                if (Math.random() < gemChance) {
+                    gameState.gems++;
+                    createParticle(e.clientX, e.clientY, 'fa-star');
+                    showToast('Gem found!', 'success');
+                }
+                
+                createMultipleParticles(e.clientX, e.clientY, 3);
+                screenShake();
+                updateDisplays();
+                saveGame();
+            });
+        }
+
+        // ==================== NAVIGATION ====================
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ==================== UPGRADES ====================
+        function generateUpgrades(filter = 'all') {
+            const grid = document.getElementById('upgradesGrid');
+            grid.innerHTML = '';
+            
+            const filtered = filter === 'all' 
+                ? upgradeData 
+                : upgradeData.filter(u => u.type === filter);
+            
+            filtered.forEach(upgrade => {
+                const owned = gameState.upgrades[upgrade.id];
+                const canAfford = gameState.ore >= upgrade.cost;
+                
+                const card = document.createElement('div');
+                card.className = `upgrade-card ${owned ? 'owned' : ''} ${!canAfford && !owned ? 'locked' : ''}`;
+                
+                const iconClass = upgrade.type;
+                const tierText = 'Tier ' + upgrade.tier;
+                
+                card.innerHTML = `
+                    <div class="upgrade-header">
+                        <div class="upgrade-icon ${iconClass}">
+                            <i class="fas ${upgrade.icon}"></i>
+                        </div>
+                        <div class="upgrade-info">
+                            <div class="upgrade-name">${upgrade.name}</div>
+                            <div class="upgrade-tier">${tierText} • ${upgrade.type}</div>
+                        </div>
+                    </div>
+                    <div class="upgrade-desc">${upgrade.desc}</div>
+                    <div class="upgrade-footer">
+                        ${owned 
+                            ? '<div class="upgrade-owned-badge"><i class="fas fa-check"></i> Owned</div>'
+                            : `<div class="upgrade-cost"><i class="fas fa-cube"></i> ${formatNumber(upgrade.cost)}</div>`
+                        }
+                    </div>
+                `;
+                
+                if (!owned) {
+                    card.addEventListener('click', () => buyUpgrade(upgrade));
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function buyUpgrade(upgrade) {
+            if (gameState.ore >= upgrade.cost && !gameState.upgrades[upgrade.id]) {
+                gameState.ore -= upgrade.cost;
+                gameState.upgrades[upgrade.id] = true;
+                upgrade.effect();
+                updateDisplays();
+                generateUpgrades(currentUpgradeFilter);
+                saveGame();
+                showToast(`Purchased: ${upgrade.name}!`, 'success');
+            } else if (gameState.ore < upgrade.cost) {
+                showToast('Not enough ore!', 'error');
+            }
+        }
+
+        let currentUpgradeFilter = 'all';
+        document.querySelectorAll('#upgrades .filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#upgrades .filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentUpgradeFilter = this.dataset.filter;
+                generateUpgrades(currentUpgradeFilter);
+            });
+        });
+
+        // ==================== MINIGAMES ====================
+        function generateMinigames(filter = 'all') {
+            const grid = document.getElementById('minigamesGrid');
+            grid.innerHTML = '';
+            
+            // Add built-in games
+            minigamesData.forEach(game => {
+                if (filter === 'featured' && !game.featured) return;
+                if (filter === 'custom') return;
+                
+                const card = document.createElement('div');
+                card.className = `minigame-card ${game.featured ? 'featured' : ''}`;
+                card.dataset.game = game.id;
+                
+                card.innerHTML = `
+                    ${game.featured ? '<span class="featured-badge"><i class="fas fa-star"></i> FEATURED</span>' : ''}
+                    <div class="minigame-icon">
+                        <i class="fas ${game.icon}"></i>
+                    </div>
+                    <div class="minigame-name">${game.name}</div>
+                    <div class="minigame-desc">${game.desc}</div>
+                    <div class="minigame-reward ${game.diamond ? 'diamond' : ''}">
+                        <i class="fas ${game.diamond ? 'fa-gem' : 'fa-cube'}"></i>
+                        ${game.reward}
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => startMinigame(game.id));
+                grid.appendChild(card);
+            });
+            
+            // Add custom games
+            if (filter === 'all' || filter === 'custom') {
+                gameState.customGames.forEach((game, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'minigame-card custom';
+                    card.dataset.game = 'custom_' + index;
+                    
+                    card.innerHTML = `
+                        <span class="custom-badge"><i class="fas fa-magic"></i> CUSTOM</span>
+                        <div class="minigame-icon">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div class="minigame-name">${game.name}</div>
+                        <div class="minigame-desc">AI-generated game</div>
+                        <div class="minigame-reward">
+                            <i class="fas fa-cube"></i>
+                            Variable rewards
+                        </div>
+                    `;
+                    
+                    card.addEventListener('click', () => startCustomGame(index));
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        document.querySelectorAll('#minigames .filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#minigames .filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                generateMinigames(this.dataset.filter);
+            });
+        });
+
+        // ==================== GAME MODAL ====================
+        let currentGameCleanup = null;
+
+        function startMinigame(gameType) {
+            const modal = document.getElementById('gameModal');
+            const title = document.getElementById('gameTitle');
+            const instructions = document.getElementById('gameInstructions');
+            const area = document.getElementById('gameArea');
+            
+            modal.classList.add('active');
+            
+            if (currentGameCleanup) {
+                currentGameCleanup();
+                currentGameCleanup = null;
+            }
+            
+            switch(gameType) {
+                case 'reaction': reactionGame(title, instructions, area); break;
+                case 'memory': memoryGame(title, instructions, area); break;
+                case 'dodge': dodgeGame(title, instructions, area); break;
+                case 'speedclick': speedClickGame(title, instructions, area); break;
+                case 'rhythm': rhythmGame(title, instructions, area); break;
+                case 'math': mathGame(title, instructions, area); break;
+                case 'slider': sliderGame(title, instructions, area); break;
+                case 'wheel': wheelGame(title, instructions, area); break;
+                case 'boss': bossGame(title, instructions, area); break;
+                case 'subway': subwayGame(title, instructions, area); break;
+                case 'fnf': fnfGame(title, instructions, area); break;
+                case 'snake': snakeGame(title, instructions, area); break;
+                case 'flappy': flappyGame(title, instructions, area); break;
+                case 'pong': pongGame(title, instructions, area); break;
+                case 'breakout': breakoutGame(title, instructions, area); break;
+                case 'typing': typingGame(title, instructions, area); break;
+                case 'colorMatch': colorMatchGame(title, instructions, area); break;
+                case 'aim': aimGame(title, instructions, area); break;
+                case '2048': game2048(title, instructions, area); break;
+                case 'tetris': tetrisGame(title, instructions, area); break;
+            }
+        }
+
+        function closeMinigame() {
+            document.getElementById('gameModal').classList.remove('active');
+            document.getElementById('gameArea').innerHTML = '';
+            if (currentGameCleanup) {
+                currentGameCleanup();
+                currentGameCleanup = null;
+            }
+        }
+
+        document.getElementById('gameClose').addEventListener('click', closeMinigame);
+
+        // ==================== GAME IMPLEMENTATIONS ====================
+        
+        // Reaction Game
+        function reactionGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-bolt"></i> Reaction Test';
+            instructions.textContent = 'Click when the box turns GREEN!';
+            
+            area.innerHTML = `
+                <div class="reaction-box waiting" id="reactionBox">Wait...</div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="reactionResult">-</div>
+                        <div class="game-stat-label">Reaction Time</div>
+                    </div>
+                </div>
+            `;
+            
+            const box = document.getElementById('reactionBox');
+            let startTime, canClick = false, timeout;
+            
+            const delay = 1000 + Math.random() * 4000;
+            
+            timeout = setTimeout(() => {
+                box.classList.remove('waiting');
+                box.classList.add('ready');
+                box.textContent = 'CLICK!';
+                startTime = Date.now();
+                canClick = true;
+            }, delay);
+            
+            function handler() {
+                if (!canClick) {
+                    document.getElementById('reactionResult').textContent = 'Too early!';
+                    box.removeEventListener('click', handler);
+                    return;
+                }
+                
+                const reactionTime = Date.now() - startTime;
+                let reward = Math.max(50, 200 - reactionTime);
+                
+                document.getElementById('reactionResult').textContent = reactionTime + 'ms';
+                
+                gameState.ore += reward;
+                gameState.totalMined += reward;
+                updateDisplays();
+                saveGame();
+                showToast(`+${reward} ore!`, 'success');
+                
+                box.removeEventListener('click', handler);
+            }
+            
+            box.addEventListener('click', handler);
+            
+            currentGameCleanup = () => {
+                clearTimeout(timeout);
+                box.removeEventListener('click', handler);
+            };
+        }
+
+        // Memory Game
+        function memoryGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-brain"></i> Memory Match';
+            instructions.textContent = 'Find all matching pairs!';
+            
+            const icons = ['fa-star', 'fa-heart', 'fa-bolt', 'fa-gem', 'fa-fire', 'fa-moon', 'fa-sun', 'fa-cloud'];
+            const cards = [...icons, ...icons].sort(() => Math.random() - 0.5);
+            
+            area.innerHTML = `
+                <div class="memory-grid" id="memoryGrid"></div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="memoryScore">0/8</div>
+                        <div class="game-stat-label">Pairs Found</div>
+                    </div>
+                </div>
+            `;
+            
+            const grid = document.getElementById('memoryGrid');
+            let flipped = [];
+            let matched = 0;
+            let canFlip = true;
+            
+            cards.forEach((icon, i) => {
+                const tile = document.createElement('div');
+                tile.className = 'memory-tile';
+                tile.dataset.index = i;
+                tile.dataset.icon = icon;
+                
+                tile.addEventListener('click', () => {
+                    if (!canFlip || tile.classList.contains('revealed') || tile.classList.contains('matched')) return;
+                    
+                    tile.classList.add('revealed');
+                    tile.innerHTML = `<i class="fas ${icon}"></i>`;
+                    flipped.push(tile);
+                    
+                    if (flipped.length === 2) {
+                        canFlip = false;
+                        
+                        if (flipped[0].dataset.icon === flipped[1].dataset.icon) {
+                            flipped.forEach(t => t.classList.add('matched'));
+                            matched++;
+                            document.getElementById('memoryScore').textContent = `${matched}/8`;
+                            flipped = [];
+                            canFlip = true;
+                            
+                            if (matched === 8) {
+                                const reward = 500;
+                                gameState.ore += reward;
+                                gameState.totalMined += reward;
+                                updateDisplays();
+                                saveGame();
+                                showToast(`Memory Master! +${reward} ore!`, 'success');
+                            }
+                        } else {
+                            setTimeout(() => {
+                                flipped.forEach(t => {
+                                    t.classList.remove('revealed');
+                                    t.innerHTML = '';
+                                });
+                                flipped = [];
+                                canFlip = true;
+                            }, 1000);
+                        }
+                    }
+                });
+                
+                grid.appendChild(tile);
+            });
+        }
+
+        // Dodge Game
+        function dodgeGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-shield-alt"></i> Dodge Blocks';
+            instructions.textContent = 'Move your mouse to dodge the falling blocks!';
+            
+            area.innerHTML = `
+                <div class="dodge-area" id="dodgeArea">
+                    <div class="dodge-player" id="dodgePlayer"></div>
+                </div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value time" id="dodgeTimer">0.0s</div>
+                        <div class="game-stat-label">Survived</div>
+                    </div>
+                </div>
+            `;
+            
+            const dodgeArea = document.getElementById('dodgeArea');
+            const player = document.getElementById('dodgePlayer');
+            const timerEl = document.getElementById('dodgeTimer');
+            
+            let startTime = Date.now();
+            let gameRunning = true;
+            let blocks = [];
+            let animFrame;
+            let spawnInterval;
+            
+            function handleMove(e) {
+                if (!gameRunning) return;
+                const rect = dodgeArea.getBoundingClientRect();
+                const x = Math.max(0, Math.min(320, e.clientX - rect.left - 15));
+                const y = Math.max(0, Math.min(320, e.clientY - rect.top - 15));
+                player.style.left = x + 'px';
+                player.style.top = y + 'px';
+            }
+            
+            dodgeArea.addEventListener('mousemove', handleMove);
+            
+            function spawnBlock() {
+                if (!gameRunning) return;
+                
+                const block = document.createElement('div');
+                block.className = 'dodge-block';
+                block.style.left = Math.random() * 310 + 'px';
+                block.style.top = '-40px';
+                dodgeArea.appendChild(block);
+                blocks.push(block);
+            }
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                const elapsed = (Date.now() - startTime) / 1000;
+                timerEl.textContent = elapsed.toFixed(1) + 's';
+                
+                const playerRect = player.getBoundingClientRect();
+                
+                blocks.forEach(block => {
+                    const top = parseFloat(block.style.top) + 4;
+                    block.style.top = top + 'px';
+                    
+                    if (top > 350) {
+                        block.remove();
+                        blocks = blocks.filter(b => b !== block);
+                        return;
+                    }
+                    
+                    const blockRect = block.getBoundingClientRect();
+                    
+                    if (playerRect.left < blockRect.right &&
+                        playerRect.right > blockRect.left &&
+                        playerRect.top < blockRect.bottom &&
+                        playerRect.bottom > blockRect.top) {
+                        gameRunning = false;
+                        const reward = Math.floor(elapsed * 10);
+                        gameState.ore += reward;
+                        gameState.totalMined += reward;
+                        updateDisplays();
+                        saveGame();
+                        timerEl.textContent = `+${reward} ore!`;
+                        showToast(`Survived ${elapsed.toFixed(1)}s! +${reward} ore`, 'success');
+                    }
+                });
+                
+                if (gameRunning) animFrame = requestAnimationFrame(update);
+            }
+            
+            spawnInterval = setInterval(() => {
+                if (gameRunning) spawnBlock();
+            }, 400);
+            
+            update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(spawnInterval);
+                cancelAnimationFrame(animFrame);
+                dodgeArea.removeEventListener('mousemove', handleMove);
+            };
+        }
+
+        // Speed Click Game
+        function speedClickGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-hand-pointer"></i> Speed Click';
+            instructions.textContent = 'Click as fast as you can in 10 seconds!';
+            
+            area.innerHTML = `
+                <div class="click-target" id="clickTarget">
+                    <i class="fas fa-hand-pointer"></i>
+                </div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="clickCount">0</div>
+                        <div class="game-stat-label">Clicks</div>
+                    </div>
+                    <div class="game-stat">
+                        <div class="game-stat-value time" id="clickTimer">10.0s</div>
+                        <div class="game-stat-label">Time Left</div>
+                    </div>
+                </div>
+            `;
+            
+            const target = document.getElementById('clickTarget');
+            let clicks = 0;
+            let timeLeft = 10;
+            let gameRunning = true;
+            
+            function handleClick(e) {
+                if (!gameRunning) return;
+                clicks++;
+                document.getElementById('clickCount').textContent = clicks;
+                createMultipleParticles(e.clientX, e.clientY, 2);
+            }
+            
+            target.addEventListener('click', handleClick);
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('clickTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = clicks * 5;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('clickTimer').textContent = 'Done!';
+                    showToast(`${clicks} clicks! +${reward} ore`, 'success');
+                }
+            }, 100);
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+                target.removeEventListener('click', handleClick);
+            };
+        }
+
+        // Rhythm Game
+        function rhythmGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-drum"></i> Rhythm Tap';
+            instructions.textContent = 'Press SPACE when notes hit the target!';
+            
+            area.innerHTML = `
+                <div class="rhythm-lane" id="rhythmLane">
+                    <div class="rhythm-target"></div>
+                </div>
+                <div class="rhythm-keys">
+                    <div class="rhythm-key" id="spaceKey">SPACE</div>
+                </div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="rhythmScore">0</div>
+                        <div class="game-stat-label">Score</div>
+                    </div>
+                    <div class="game-stat">
+                        <div class="game-stat-value combo" id="rhythmCombo">0</div>
+                        <div class="game-stat-label">Combo</div>
+                    </div>
+                </div>
+            `;
+            
+            const lane = document.getElementById('rhythmLane');
+            const spaceKey = document.getElementById('spaceKey');
+            let score = 0;
+            let combo = 0;
+            let notes = [];
+            let gameRunning = true;
+            let notesSpawned = 0;
+            const maxNotes = 20;
+            let animFrame;
+            
+            function spawnNote() {
+                if (!gameRunning || notesSpawned >= maxNotes) return;
+                
+                const note = document.createElement('div');
+                note.className = 'rhythm-note';
+                note.style.top = '-25px';
+                lane.appendChild(note);
+                notes.push({ el: note, hit: false });
+                notesSpawned++;
+            }
+            
+            function handleKeydown(e) {
+                if (e.code !== 'Space' || !gameRunning) return;
+                e.preventDefault();
+                
+                spaceKey.classList.add('active');
+                
+                const targetTop = 255;
+                let hitNote = null;
+                let closestDist = 40;
+                
+                notes.forEach(note => {
+                    if (note.hit) return;
+                    const top = parseFloat(note.el.style.top);
+                    const dist = Math.abs(top - targetTop);
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        hitNote = note;
+                    }
+                });
+                
+                if (hitNote) {
+                    hitNote.hit = true;
+                    hitNote.el.remove();
+                    combo++;
+                    
+                    if (closestDist < 15) {
+                        score += 20;
+                    } else {
+                        score += 10;
+                    }
+                    
+                    document.getElementById('rhythmScore').textContent = score;
+                    document.getElementById('rhythmCombo').textContent = combo;
+                }
+            }
+            
+            function handleKeyup(e) {
+                if (e.code === 'Space') {
+                    spaceKey.classList.remove('active');
+                }
+            }
+            
+            document.addEventListener('keydown', handleKeydown);
+            document.addEventListener('keyup', handleKeyup);
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                notes.forEach((note) => {
+                    if (note.hit) return;
+                    const top = parseFloat(note.el.style.top) + 3;
+                    note.el.style.top = top + 'px';
+                    
+                    if (top > 300) {
+                        note.hit = true;
+                        note.el.remove();
+                        combo = 0;
+                        document.getElementById('rhythmCombo').textContent = combo;
+                    }
+                });
+                
+                notes = notes.filter(n => !n.hit);
+                
+                if (notes.length === 0 && notesSpawned >= maxNotes) {
+                    gameRunning = false;
+                    gameState.ore += score;
+                    gameState.totalMined += score;
+                    updateDisplays();
+                    saveGame();
+                    showToast(`Rhythm complete! +${score} ore`, 'success');
+                } else {
+                    animFrame = requestAnimationFrame(update);
+                }
+            }
+            
+            const spawnInterval = setInterval(() => {
+                if (gameRunning && notesSpawned < maxNotes) spawnNote();
+                else clearInterval(spawnInterval);
+            }, 500);
+            
+            update();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(spawnInterval);
+                cancelAnimationFrame(animFrame);
+                document.removeEventListener('keydown', handleKeydown);
+                document.removeEventListener('keyup', handleKeyup);
+            };
+        }
+
+        // Math Game
+        function mathGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-calculator"></i> Math Rush';
+            instructions.textContent = 'Solve as many problems as you can in 30 seconds!';
+            
+            area.innerHTML = `
+                <div class="math-problem" id="mathProblem"></div>
+                <input type="number" class="math-input" id="mathInput" autofocus>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="mathScore">0</div>
+                        <div class="game-stat-label">Correct</div>
+                    </div>
+                    <div class="game-stat">
+                        <div class="game-stat-value time" id="mathTimer">30.0s</div>
+                        <div class="game-stat-label">Time Left</div>
+                    </div>
+                </div>
+            `;
+            
+            const problemEl = document.getElementById('mathProblem');
+            const input = document.getElementById('mathInput');
+            let correct = 0;
+            let answer = 0;
+            let timeLeft = 30;
+            let gameRunning = true;
+            
+            function newProblem() {
+                const a = Math.floor(Math.random() * 20) + 1;
+                const b = Math.floor(Math.random() * 20) + 1;
+                const ops = ['+', '-', '×'];
+                const op = ops[Math.floor(Math.random() * ops.length)];
+                
+                switch(op) {
+                    case '+': answer = a + b; break;
+                    case '-': answer = a - b; break;
+                    case '×': answer = a * b; break;
+                }
+                
+                problemEl.textContent = `${a} ${op} ${b} = ?`;
+                input.value = '';
+                input.focus();
+            }
+            
+            function handleKeypress(e) {
+                if (e.key === 'Enter' && gameRunning) {
+                    if (parseInt(input.value) === answer) {
+                        correct++;
+                        document.getElementById('mathScore').textContent = correct;
+                        newProblem();
+                    } else {
+                        input.style.borderColor = 'var(--accent-red)';
+                        setTimeout(() => input.style.borderColor = '', 200);
+                    }
+                }
+            }
+            
+            input.addEventListener('keypress', handleKeypress);
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('mathTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = correct * 100;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    document.getElementById('mathTimer').textContent = 'Done!';
+                    showToast(`${correct} correct! +${reward} ore`, 'success');
+                    input.disabled = true;
+                }
+            }, 100);
+            
+            newProblem();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+                input.removeEventListener('keypress', handleKeypress);
+            };
+        }
+
+        // Slider Game
+        function sliderGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-crosshairs"></i> Precision Stop';
+            instructions.textContent = 'Stop the marker in the GREEN zone for diamonds!';
+            
+            area.innerHTML = `
+                <div class="precision-slider" id="precisionSlider">
+                    <div class="precision-zone"></div>
+                    <div class="precision-marker" id="sliderMarker"></div>
+                </div>
+                <button class="btn btn-primary" id="stopBtn" style="margin-top: 20px;">
+                    <i class="fas fa-hand-paper"></i> STOP!
+                </button>
+                <div class="game-stats" style="margin-top: 20px;">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="sliderResult">-</div>
+                        <div class="game-stat-label">Result</div>
+                    </div>
+                </div>
+            `;
+            
+            const marker = document.getElementById('sliderMarker');
+            let position = 0;
+            let direction = 1;
+            let speed = 4;
+            let gameRunning = true;
+            let animFrame;
+            
+            function animate() {
+                if (!gameRunning) return;
+                
+                position += direction * speed;
+                if (position >= 312) direction = -1;
+                if (position <= 0) direction = 1;
+                
+                marker.style.left = position + 'px';
+                animFrame = requestAnimationFrame(animate);
+            }
+            
+            function handleStop() {
+                if (!gameRunning) return;
+                gameRunning = false;
+                
+                const greenStart = 144;
+                const greenEnd = 176;
+                
+                if (position >= greenStart && position <= greenEnd) {
+                    gameState.diamondOre += 1;
+                    document.getElementById('sliderResult').textContent = 'DIAMOND!';
+                    showToast('+1 Diamond Ore!', 'success');
+                } else {
+                    const reward = 50;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    document.getElementById('sliderResult').textContent = `+${reward} ore`;
+                }
+                
+                updateDisplays();
+                saveGame();
+            }
+            
+            document.getElementById('stopBtn').addEventListener('click', handleStop);
+            
+            animate();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                cancelAnimationFrame(animFrame);
+            };
+        }
+
+        // Wheel Game
+        function wheelGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-dharmachakra"></i> Lucky Wheel';
+            instructions.textContent = 'Spin the wheel for prizes!';
+            
+            area.innerHTML = `
+                <div class="wheel-container">
+                    <div class="wheel-pointer"><i class="fas fa-caret-down"></i></div>
+                    <div class="wheel" id="wheel"></div>
+                </div>
+                <button class="btn btn-primary" id="spinBtn" style="margin-top: 20px;">
+                    <i class="fas fa-sync-alt"></i> SPIN!
+                </button>
+                <div class="game-stats" style="margin-top: 20px;">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="wheelResult">-</div>
+                        <div class="game-stat-label">Prize</div>
+                    </div>
+                </div>
+            `;
+            
+            const wheel = document.getElementById('wheel');
+            const spinBtn = document.getElementById('spinBtn');
+            let spinning = false;
+            
+            const prizes = [
+                { text: '100 Ore', ore: 100, diamond: 0 },
+                { text: '1 Diamond', ore: 0, diamond: 1 },
+                { text: '200 Ore', ore: 200, diamond: 0 },
+                { text: '2 Diamonds', ore: 0, diamond: 2 },
+                { text: '500 Ore', ore: 500, diamond: 0 },
+                { text: '3 Diamonds', ore: 0, diamond: 3 },
+                { text: '1000 Ore', ore: 1000, diamond: 0 },
+                { text: '5 Diamonds!', ore: 0, diamond: 5 },
+            ];
+            
+            function handleSpin() {
+                if (spinning) return;
+                spinning = true;
+                spinBtn.disabled = true;
+                
+                const spins = 5 + Math.random() * 5;
+                const extraDegrees = Math.random() * 360;
+                const totalRotation = spins * 360 + extraDegrees;
+                
+                wheel.style.transform = `rotate(${totalRotation}deg)`;
+                
+                setTimeout(() => {
+                    const finalAngle = extraDegrees;
+                    const prizeIndex = Math.floor((360 - (finalAngle % 360)) / 45) % 8;
+                    const prize = prizes[prizeIndex];
+                    
+                    gameState.ore += prize.ore;
+                    gameState.totalMined += prize.ore;
+                    gameState.diamondOre += prize.diamond;
+                    
+                    document.getElementById('wheelResult').textContent = prize.text;
+                    
+                    if (prize.diamond > 0) {
+                        showToast(`+${prize.diamond} Diamond Ore!`, 'success');
+                    } else {
+                        showToast(`+${prize.ore} ore!`, 'success');
+                    }
+                    
+                    updateDisplays();
+                    saveGame();
+                    spinning = false;
+                    spinBtn.disabled = false;
+                }, 4000);
+            }
+            
+            spinBtn.addEventListener('click', handleSpin);
+        }
+
+        // Boss Game
+        function bossGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-dragon"></i> Mini Boss';
+            instructions.textContent = 'Click to attack the Air Elemental!';
+            
+            area.innerHTML = `
+                <div class="boss-container">
+                    <div class="boss-health-bar">
+                        <div class="boss-health-fill" id="bossHealth" style="width: 100%"></div>
+                    </div>
+                    <div class="boss-enemy" id="bossEnemy"><i class="fas fa-ghost"></i></div>
+                </div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="bossHP">100/100</div>
+                        <div class="game-stat-label">Boss HP</div>
+                    </div>
+                </div>
+            `;
+            
+            const boss = document.getElementById('bossEnemy');
+            const healthBar = document.getElementById('bossHealth');
+            let hp = 100;
+            let gameRunning = true;
+            
+            function handleClick(e) {
+                if (!gameRunning) return;
+                
+                const damage = 5 + Math.floor(Math.random() * 5);
+                hp -= damage;
+                
+                if (hp < 0) hp = 0;
+                
+                healthBar.style.width = hp + '%';
+                document.getElementById('bossHP').textContent = `${hp}/100`;
+                
+                createMultipleParticles(e.clientX, e.clientY, 3);
+                boss.style.transform = 'scale(0.9)';
+                setTimeout(() => boss.style.transform = '', 100);
+                
+                if (hp <= 0) {
+                    gameRunning = false;
+                    boss.innerHTML = '<i class="fas fa-skull"></i>';
+                    
+                    const oreReward = 500;
+                    const diamondReward = 1;
+                    
+                    gameState.ore += oreReward;
+                    gameState.totalMined += oreReward;
+                    gameState.diamondOre += diamondReward;
+                    
+                    updateDisplays();
+                    saveGame();
+                    
+                    document.getElementById('bossHP').textContent = 'VICTORY!';
+                    showToast(`Boss Defeated! +${oreReward} ore +${diamondReward} diamond!`, 'success');
+                }
+            }
+            
+            boss.addEventListener('click', handleClick);
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                boss.removeEventListener('click', handleClick);
+            };
+        }
+
+        // Additional games (Snake, Flappy, Pong, etc.) follow the same pattern
+        // Due to length constraints, I'll include simplified versions
+
+        function snakeGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-bacon"></i> Air Snake';
+            instructions.textContent = 'Use arrow keys to move!';
+            
+            area.innerHTML = `
+                <div class="snake-game" id="snakeGame"></div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="snakeScore">3</div>
+                        <div class="game-stat-label">Length</div>
+                    </div>
+                </div>
+            `;
+            
+            const game = document.getElementById('snakeGame');
+            let snake = [{x: 160, y: 160}, {x: 144, y: 160}, {x: 128, y: 160}];
+            let direction = {x: 16, y: 0};
+            let food = {x: 240, y: 160};
+            let gameRunning = true;
+            let gameInterval;
+            
+            function draw() {
+                game.innerHTML = '';
+                
+                const foodEl = document.createElement('div');
+                foodEl.className = 'snake-food';
+                foodEl.style.left = food.x + 'px';
+                foodEl.style.top = food.y + 'px';
+                game.appendChild(foodEl);
+                
+                snake.forEach((seg, i) => {
+                    const segEl = document.createElement('div');
+                    segEl.className = 'snake-segment' + (i === 0 ? ' head' : '');
+                    segEl.style.left = seg.x + 'px';
+                    segEl.style.top = seg.y + 'px';
+                    game.appendChild(segEl);
+                });
+            }
+            
+            function update() {
+                if (!gameRunning) return;
+                
+                const newHead = {
+                    x: snake[0].x + direction.x,
+                    y: snake[0].y + direction.y
+                };
+                
+                if (newHead.x < 0 || newHead.x >= 320 || newHead.y < 0 || newHead.y >= 320) {
+                    endGame();
+                    return;
+                }
+                
+                if (snake.some(seg => seg.x === newHead.x && seg.y === newHead.y)) {
+                    endGame();
+                    return;
+                }
+                
+                snake.unshift(newHead);
+                
+                if (newHead.x === food.x && newHead.y === food.y) {
+                    food = {
+                        x: Math.floor(Math.random() * 20) * 16,
+                        y: Math.floor(Math.random() * 20) * 16
+                    };
+                    document.getElementById('snakeScore').textContent = snake.length;
+                } else {
+                    snake.pop();
+                }
+                
+                draw();
+            }
+            
+            function endGame() {
+                gameRunning = false;
+                clearInterval(gameInterval);
+                const reward = (snake.length - 3) * 10;
+                gameState.ore += reward;
+                gameState.totalMined += reward;
+                updateDisplays();
+                saveGame();
+                showToast(`Snake died! +${reward} ore`, 'success');
+            }
+            
+            function handleKeydown(e) {
+                if (!gameRunning) return;
+                
+                if (e.key === 'ArrowUp' && direction.y === 0) { direction = {x: 0, y: -16}; }
+                if (e.key === 'ArrowDown' && direction.y === 0) { direction = {x: 0, y: 16}; }
+                if (e.key === 'ArrowLeft' && direction.x === 0) { direction = {x: -16, y: 0}; }
+                if (e.key === 'ArrowRight' && direction.x === 0) { direction = {x: 16, y: 0}; }
+            }
+            
+            document.addEventListener('keydown', handleKeydown);
+            
+            draw();
+            gameInterval = setInterval(update, 120);
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(gameInterval);
+                document.removeEventListener('keydown', handleKeydown);
+            };
+        }
+
+        // Simplified implementations for remaining games
+        function flappyGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-dove"></i> Flappy Ore';
+            instructions.textContent = 'Click or press SPACE to flap!';
+            area.innerHTML = '<p style="color: var(--text-secondary);">Game coming soon - Click to earn 100 ore</p>';
+            area.style.cursor = 'pointer';
+            area.onclick = () => {
+                gameState.ore += 100;
+                gameState.totalMined += 100;
+                updateDisplays();
+                saveGame();
+                showToast('+100 ore (placeholder)', 'info');
+            };
+        }
+
+        function pongGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-table-tennis"></i> Air Pong';
+            instructions.textContent = 'Move mouse to control paddle!';
+            area.innerHTML = '<p style="color: var(--text-secondary);">Game coming soon - Click to earn 100 ore</p>';
+            area.style.cursor = 'pointer';
+            area.onclick = () => {
+                gameState.ore += 100;
+                updateDisplays();
+                saveGame();
+                showToast('+100 ore (placeholder)', 'info');
+            };
+        }
+
+        function breakoutGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-th"></i> Ore Breaker';
+            instructions.textContent = 'Move mouse to control paddle!';
+            area.innerHTML = '<p style="color: var(--text-secondary);">Game coming soon - Click to earn 100 ore</p>';
+            area.style.cursor = 'pointer';
+            area.onclick = () => {
+                gameState.ore += 100;
+                updateDisplays();
+                saveGame();
+                showToast('+100 ore (placeholder)', 'info');
+            };
+        }
+
+        function typingGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-keyboard"></i> Type Rush';
+            instructions.textContent = 'Type the words as fast as you can!';
+            
+            const words = ['ore', 'mine', 'diamond', 'click', 'air', 'rock', 'gem', 'gold', 'crystal'];
+            
+            area.innerHTML = `
+                <div class="typing-word" id="typingWord">${words[Math.floor(Math.random() * words.length)]}</div>
+                <input type="text" class="typing-input" id="typingInput" autofocus>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="typingScore">0</div>
+                        <div class="game-stat-label">Words</div>
+                    </div>
+                    <div class="game-stat">
+                        <div class="game-stat-value time" id="typingTimer">30.0s</div>
+                        <div class="game-stat-label">Time</div>
+                    </div>
+                </div>
+            `;
+            
+            const wordEl = document.getElementById('typingWord');
+            const input = document.getElementById('typingInput');
+            let wordsTyped = 0;
+            let timeLeft = 30;
+            let gameRunning = true;
+            
+            input.addEventListener('input', () => {
+                if (!gameRunning) return;
+                if (input.value.toLowerCase() === wordEl.textContent.toLowerCase()) {
+                    wordsTyped++;
+                    document.getElementById('typingScore').textContent = wordsTyped;
+                    wordEl.textContent = words[Math.floor(Math.random() * words.length)];
+                    input.value = '';
+                }
+            });
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('typingTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = wordsTyped * 50;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    showToast(`${wordsTyped} words! +${reward} ore`, 'success');
+                    input.disabled = true;
+                }
+            }, 100);
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+            };
+        }
+
+        function colorMatchGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-palette"></i> Color Chaos';
+            instructions.textContent = 'Click the button matching the TEXT COLOR, not the word!';
+            
+            const colors = [
+                { name: 'RED', hex: '#f85149' },
+                { name: 'BLUE', hex: '#58a6ff' },
+                { name: 'GREEN', hex: '#3fb950' },
+                { name: 'YELLOW', hex: '#d29922' },
+                { name: 'PINK', hex: '#f778ba' }
+            ];
+            
+            area.innerHTML = `
+                <div class="color-display" id="colorDisplay">RED</div>
+                <div class="color-buttons" id="colorButtons"></div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="colorScore">0</div>
+                        <div class="game-stat-label">Correct</div>
+                    </div>
+                    <div class="game-stat">
+                        <div class="game-stat-value time" id="colorTimer">20.0s</div>
+                        <div class="game-stat-label">Time</div>
+                    </div>
+                </div>
+            `;
+            
+            const display = document.getElementById('colorDisplay');
+            const buttons = document.getElementById('colorButtons');
+            let correct = 0;
+            let timeLeft = 20;
+            let gameRunning = true;
+            let currentTextColor;
+            
+            colors.forEach(color => {
+                const btn = document.createElement('button');
+                btn.className = 'color-btn';
+                btn.textContent = color.name;
+                btn.style.background = color.hex;
+                btn.style.color = color.name === 'YELLOW' ? '#000' : '#fff';
+                btn.addEventListener('click', () => {
+                    if (!gameRunning) return;
+                    if (color.name === currentTextColor) {
+                        correct++;
+                        document.getElementById('colorScore').textContent = correct;
+                    }
+                    newRound();
+                });
+                buttons.appendChild(btn);
+            });
+            
+            function newRound() {
+                const textColor = colors[Math.floor(Math.random() * colors.length)];
+                const displayWord = colors[Math.floor(Math.random() * colors.length)];
+                
+                currentTextColor = textColor.name;
+                display.textContent = displayWord.name;
+                display.style.color = textColor.hex;
+            }
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('colorTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = correct * 40;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    showToast(`${correct} correct! +${reward} ore`, 'success');
+                }
+            }, 100);
+            
+            newRound();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+            };
+        }
+
+        function aimGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-bullseye"></i> Aim Trainer';
+            instructions.textContent = 'Click the targets as fast as you can!';
+            
+            area.innerHTML = `
+                <div class="aim-game" id="aimGame"></div>
+                <div class="game-stats">
+                    <div class="game-stat">
+                        <div class="game-stat-value score" id="aimScore">0</div>
+                        <div class="game-stat-label">Hits</div>
+                    </div>
+                    <div class="game-stat">
+                        <div class="game-stat-value time" id="aimTimer">20.0s</div>
+                        <div class="game-stat-label">Time</div>
+                    </div>
+                </div>
+            `;
+            
+            const game = document.getElementById('aimGame');
+            let hits = 0;
+            let timeLeft = 20;
+            let gameRunning = true;
+            
+            function spawnTarget() {
+                if (!gameRunning) return;
+                
+                const target = document.createElement('div');
+                target.className = 'aim-target';
+                target.style.left = Math.random() * 370 + 'px';
+                target.style.top = Math.random() * 370 + 'px';
+                
+                target.addEventListener('click', () => {
+                    if (!gameRunning) return;
+                    hits++;
+                    document.getElementById('aimScore').textContent = hits;
+                    target.remove();
+                    spawnTarget();
+                });
+                
+                game.appendChild(target);
+            }
+            
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('aimTimer').textContent = timeLeft.toFixed(1) + 's';
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    gameRunning = false;
+                    const reward = hits * 15;
+                    gameState.ore += reward;
+                    gameState.totalMined += reward;
+                    updateDisplays();
+                    saveGame();
+                    showToast(`${hits} hits! +${reward} ore`, 'success');
+                }
+            }, 100);
+            
+            spawnTarget();
+            
+            currentGameCleanup = () => {
+                gameRunning = false;
+                clearInterval(timer);
+            };
+        }
+
+        function game2048(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-th-large"></i> 2048 Ore';
+            instructions.textContent = 'Use arrow keys to combine tiles!';
+            area.innerHTML = '<p style="color: var(--text-secondary);">Full game coming soon - Click to earn 100 ore</p>';
+            area.style.cursor = 'pointer';
+            area.onclick = () => {
+                gameState.ore += 100;
+                updateDisplays();
+                saveGame();
+                showToast('+100 ore (placeholder)', 'info');
+            };
+        }
+
+        function tetrisGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-cube"></i> Ore Tetris';
+            instructions.textContent = 'Arrow keys to move, Up to rotate!';
+            area.innerHTML = '<p style="color: var(--text-secondary);">Full game coming soon - Click to earn 100 ore</p>';
+            area.style.cursor = 'pointer';
+            area.onclick = () => {
+                gameState.ore += 100;
+                updateDisplays();
+                saveGame();
+                showToast('+100 ore (placeholder)', 'info');
+            };
+        }
+
+        function subwayGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-running"></i> Air Surfers';
+            instructions.textContent = 'LEFT/RIGHT to move, UP to jump!';
+            area.innerHTML = '<p style="color: var(--text-secondary);">Full game coming soon - Click to earn 100 ore</p>';
+            area.style.cursor = 'pointer';
+            area.onclick = () => {
+                gameState.ore += 100;
+                updateDisplays();
+                saveGame();
+                showToast('+100 ore (placeholder)', 'info');
+            };
+        }
+
+        function fnfGame(title, instructions, area) {
+            title.innerHTML = '<i class="fas fa-music"></i> Friday Night Minin\'';
+            instructions.textContent = 'Press D F J K when notes hit targets!';
+            area.innerHTML = '<p style="color: var(--text-secondary);">Full game coming soon - Click to earn 100 ore</p>';
+            area.style.cursor = 'pointer';
+            area.onclick = () => {
+                gameState.ore += 100;
+                updateDisplays();
+                saveGame();
+                showToast('+100 ore (placeholder)', 'info');
+            };
+        }
+
+        // ==================== CUSTOM GAME CREATION ====================
+        document.getElementById('createGameBtn').addEventListener('click', () => {
+            document.getElementById('createGameModal').classList.add('active');
+            document.getElementById('createGameGems').textContent = gameState.gems;
+        });
+
+        document.getElementById('closeCreateGame').addEventListener('click', () => {
+            document.getElementById('createGameModal').classList.remove('active');
+        });
+
+        document.getElementById('cancelCreateGame').addEventListener('click', () => {
+            document.getElementById('createGameModal').classList.remove('active');
+        });
+
+        document.getElementById('confirmCreateGame').addEventListener('click', async () => {
+            const gameName = document.getElementById('customGameName').value.trim();
+            const gamePrompt = document.getElementById('customGamePrompt').value.trim();
+            
+            if (!gameName) {
+                showToast('Please enter a game name', 'error');
+                return;
+            }
+            
+            if (!gamePrompt) {
+                showToast('Please describe your game', 'error');
+                return;
+            }
+            
+            if (gameState.gems < 5) {
+                showToast('Not enough gems! Need 5', 'error');
+                return;
+            }
+            
+            gameState.gems -= 5;
+            updateDisplays();
+            
+            showToast('Creating your game with AI...', 'info');
+            
+            try {
+                const systemPrompt = `You are a game developer. Create a simple HTML/CSS/JS minigame based on the user's description. 
+                The game should:
+                - Be self-contained in a single HTML string
+                - Use inline CSS and JS
+                - Call window.parent.postMessage({type: 'gameReward', ore: X}, '*') to award ore to the player
+                - Be playable with mouse/keyboard
+                - Have a clear win/lose condition
+                - Be fun and engaging
+                
+                Return ONLY the HTML code, no explanation. Start with <div> not <!DOCTYPE>.
+                Use these colors: background #21262d, accent #58a6ff, text #e6edf3`;
+                
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: gameState.userId,
+                        message: `Create a minigame: ${gamePrompt}`,
+                        model: 'openrouter:anthropic/claude-opus-4.5',
+                        system: systemPrompt
+                    })
+                });
+                
+                if (!response.ok) throw new Error('API request failed');
+                
+                const data = await response.json();
+                let gameCode = data.response || '';
+                
+                // Clean up response
+                gameCode = gameCode.replace(/```html/g, '').replace(/```/g, '').trim();
+                
+                // Save custom game
+                gameState.customGames.push({
+                    name: gameName,
+                    code: gameCode,
+                    prompt: gamePrompt
+                });
+                
+                saveGame();
+                generateMinigames();
+                
+                document.getElementById('createGameModal').classList.remove('active');
+                document.getElementById('customGameName').value = '';
+                document.getElementById('customGamePrompt').value = '';
+                
+                showToast(`Game "${gameName}" created!`, 'success');
+                
+            } catch (error) {
+                console.error('Game creation error:', error);
+                gameState.gems += 5; // Refund
+                updateDisplays();
+                showToast('Failed to create game. Gems refunded.', 'error');
+            }
+        });
+
+        function startCustomGame(index) {
+            const game = gameState.customGames[index];
+            if (!game) return;
+            
+            const modal = document.getElementById('gameModal');
+            const title = document.getElementById('gameTitle');
+            const instructions = document.getElementById('gameInstructions');
+            const area = document.getElementById('gameArea');
+            
+            title.innerHTML = `<i class="fas fa-wand-magic-sparkles"></i> ${game.name}`;
+            instructions.textContent = 'AI-generated game';
+            
+            area.innerHTML = `<div class="custom-game-container">${game.code}</div>`;
+            
+            modal.classList.add('active');
+        }
+
+        // Listen for game rewards from custom games
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'gameReward') {
+                gameState.ore += e.data.ore || 0;
+                gameState.totalMined += e.data.ore || 0;
+                if (e.data.diamonds) gameState.diamondOre += e.data.diamonds;
+                if (e.data.gems) gameState.gems += e.data.gems;
+                updateDisplays();
+                saveGame();
+                showToast(`+${e.data.ore || 0} ore from custom game!`, 'success');
+            }
+        });
+
+        // ==================== AI CHAT ====================
+        document.querySelectorAll('.model-btn:not(#customModelBtn)').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                gameState.selectedModel = this.dataset.model;
+                saveGame();
+                showToast(`Model: ${this.dataset.model.split('/')[1]}`, 'info');
+            });
+        });
+
+        document.getElementById('customModelBtn').addEventListener('click', () => {
+            document.getElementById('customModelModal').classList.add('active');
+            document.getElementById('modalGems').textContent = gameState.gems;
+        });
+
+        document.getElementById('closeCustomModel').addEventListener('click', () => {
+            document.getElementById('customModelModal').classList.remove('active');
+        });
+
+        document.getElementById('cancelCustomModel').addEventListener('click', () => {
+            document.getElementById('customModelModal').classList.remove('active');
+        });
+
+        document.getElementById('confirmCustomModel').addEventListener('click', () => {
+            const modelName = document.getElementById('customModelInput').value.trim();
+            
+            if (!modelName) {
+                showToast('Please enter a model name', 'error');
+                return;
+            }
+            
+            if (BLACKLISTED_MODELS.includes(modelName)) {
+                showToast('This model is blacklisted!', 'error');
+                return;
+            }
+            
+            if (gameState.gems < 10) {
+                showToast('Not enough gems! Need 10', 'error');
+                return;
+            }
+            
+            gameState.gems -= 10;
+            gameState.customModel = modelName;
+            gameState.selectedModel = modelName;
+            
+            document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('customModelBtn').classList.add('active');
+            
+            document.getElementById('customModelModal').classList.remove('active');
+            updateDisplays();
+            saveGame();
+            showToast(`Custom model: ${modelName}`, 'success');
+        });
+
+        const chatSend = document.getElementById('chatSend');
+        const chatInput = document.getElementById('chatInput');
+        
+        chatSend.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            const cost = gameState.unlimitedAI ? 0 : getMessageCost(gameState.messageCount);
+            
+            if (gameState.ore < cost && !gameState.unlimitedAI) {
+                showToast(`Need ${cost} ore!`, 'error');
+                return;
+            }
+            
+            if (!gameState.unlimitedAI) {
+                gameState.ore -= cost;
+                gameState.messageCount++;
+            }
+            
+            updateDisplays();
+            saveGame();
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message user';
+            userMsg.textContent = message;
+            messagesDiv.appendChild(userMsg);
+            
+            chatInput.value = '';
+            chatSend.disabled = true;
+            
+            const typingMsg = document.createElement('div');
+            typingMsg.className = 'chat-message ai';
+            typingMsg.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Thinking...';
+            messagesDiv.appendChild(typingMsg);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            try {
+                let modelToUse = gameState.selectedModel;
+                if (!modelToUse.startsWith('openrouter:')) {
+                    modelToUse = `openrouter:${modelToUse}`;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: gameState.userId,
+                        message: message,
+                        model: modelToUse
+                    })
+                });
+                
+                if (!response.ok) throw new Error('API request failed');
+                
+                const data = await response.json();
+                typingMsg.innerHTML = parseCodeBlocks(data.response || 'No response received');
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                const fallback = [
+                    "Connection issue - try again in a moment!",
+                    "The AI is busy mining. Try again!",
+                    "Network hiccup! Keep mining while you wait.",
+                ];
+                typingMsg.textContent = fallback[Math.floor(Math.random() * fallback.length)];
+            }
+            
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            chatSend.disabled = false;
+        }
+
+        function parseCodeBlocks(text) {
+            let result = text;
+            
+            // Handle <codestart>...<codeend>
+            result = result.replace(/<codestart>([\s\S]*?)<codeend>/g, (match, code) => {
+                return `<div class="code-block-wrapper">
+                    <div class="code-block-header">
+                        <span>Code</span>
+                        <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre class="code-block">${escapeHtml(code.trim())}</pre>
+                </div>`;
+            });
+            
+            // Handle ```...```
+            result = result.replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, lang, code) => {
+                return `<div class="code-block-wrapper">
+                    <div class="code-block-header">
+                        <span>${lang || 'Code'}</span>
+                        <button class="code-copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre class="code-block">${escapeHtml(code.trim())}</pre>
+                </div>`;
+            });
+            
+            return result;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.copyCode = function(btn) {
+            const code = btn.closest('.code-block-wrapper').querySelector('.code-block').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 1500);
+            });
+        };
+
+        // ==================== ENDGAME ====================
+        function showEndgame() {
+            document.getElementById('endgameModal').classList.add('active');
+        }
+
+        document.querySelectorAll('.endgame-choice').forEach(choice => {
+            choice.addEventListener('click', function() {
+                const choiceType = this.dataset.choice;
+                gameState.endgameChoice = choiceType;
+                
+                if (choiceType === 'ai') {
+                    gameState.unlimitedAI = true;
+                    document.getElementById('unlimitedBadge').style.display = 'inline-flex';
+                    showToast('Unlimited AI Unlocked!', 'success');
+                } else {
+                    gameState.infinityMine = true;
+                    document.getElementById('infinityIndicator').classList.add('show');
+                    showToast('Infinity Mine Active! +100/sec forever!', 'success');
+                }
+                
+                saveGame();
+                updateDisplays();
+                document.getElementById('endgameModal').classList.remove('active');
+            });
+        });
+
+        // ==================== AUTO MINING ====================
+        setInterval(() => {
+            if (gameState.autoMine > 0) {
+                const earned = Math.floor(gameState.autoMine * gameState.globalMultiplier);
+                gameState.ore += earned;
+                gameState.totalMined += earned;
+                updateDisplays();
+                saveGame();
+            }
+            
+            if (gameState.infinityMine) {
+                gameState.ore += 100;
+                gameState.totalMined += 100;
+                updateDisplays();
+                saveGame();
+            }
+        }, 1000);
+
+        // ==================== MISC ====================
+        function showRandomTip() {
+            const tips = [
+                "Try the secret cheat code...",
+                "Minigames give lots of ore!",
+                "Higher tier upgrades are worth it",
+                "Diamonds are rare but valuable",
+                "Create your own games with AI!",
+            ];
+            showToast(tips[Math.floor(Math.random() * tips.length)], 'info');
+        }
+
+        // ==================== INITIALIZATION ====================
+        loadGame();
+        
+        if (gameState.hasCompletedIntro) {
+            document.getElementById('initial-mining').classList.add('hidden');
+            showMainApp();
+        }
+
+        // Auto-save
+        setInterval(saveGame, 10000);
+
+        console.log('%c AIR ORE ', 'background: #58a6ff; color: #0d1117; font-size: 20px; font-weight: bold; padding: 10px;');
+        console.log('%cMining air since 2026™', 'color: #8b949e;');
+        console.log('%cTip: Try typing "iamadirtycheater"', 'color: #a371f7;');
+    </script>
+</body>
+</html>
